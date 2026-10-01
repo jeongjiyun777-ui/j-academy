@@ -6,6 +6,12 @@
 
 Students register and apply for a subject and class. Administrators manage approval status, student and inquiry lists, and Excel exports. The goal is an operational service with role-based access and real data flow, not a presentation-only website.
 
+## 📺 Project Demo Video
+
+[![J-Academy Walkthrough](https://img.youtube.com/vi/_D9eecQplGM/maxresdefault.jpg)](https://www.youtube.com/watch?v=_D9eecQplGM)
+
+> 👆 **Click the image above to watch the 3-minute core feature walkthrough on YouTube.**
+
 ## Problems addressed
 
 | Operational problem | Implementation |

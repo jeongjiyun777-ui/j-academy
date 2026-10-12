@@ -1,8 +1,6 @@
 from pathlib import Path
-import os
 
 from dotenv import load_dotenv
-from openai import OpenAI
 
 
 BACKEND_PATH = Path(__file__).resolve().parent
@@ -16,9 +14,6 @@ load_dotenv(
 )
 
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
-)
 
 
 LEVEL_NAMES = {

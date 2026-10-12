@@ -10,25 +10,12 @@ import smtplib
 
 BACKEND_PATH = Path(__file__).resolve().parent
 ENV_FILE = BACKEND_PATH / "config" / ".env"
-ENV_EXAMPLE_FILE = BACKEND_PATH / "config" / ".env.example"
 
-load_dotenv(
-    dotenv_path=ENV_FILE
-    if ENV_FILE.exists() and ENV_FILE.read_text(encoding="utf-8").strip()
-    else ENV_EXAMPLE_FILE
-)
-SMTP_ENABLED = os.getenv("SMTP_ENABLED", "false").lower() == "true"
-
-
-def is_smtp_enabled() -> bool:
-    return SMTP_ENABLED
+load_dotenv(dotenv_path=ENV_FILE)
 
 
 
 def send_notification_email(name: str, phone: str) -> bool:
-    if not is_smtp_enabled():
-        return False
-
     SMTP_CONFIG = {
         "server": os.environ["SMTP_SERVER"],
         "port": int(os.environ["SMTP_PORT"]),
@@ -120,9 +107,6 @@ def send_notification_email(name: str, phone: str) -> bool:
 
 
 def send_subject_notification_email(name: str, subject: str, class_name: str,) -> bool:
-    if not is_smtp_enabled():
-        return False
-
     SMTP_CONFIG = {
         "server": os.environ["SMTP_SERVER"],
         "port": int(os.environ["SMTP_PORT"]),
@@ -218,9 +202,6 @@ def send_inquiries_email(
     title: str,
     content: str,
 ) -> bool:
-    if not is_smtp_enabled():
-        return False
-
     SMTP_CONFIG = {
         "server": os.environ["SMTP_SERVER"],
         "port": int(os.environ["SMTP_PORT"]),
@@ -323,8 +304,5 @@ def send_inquiries_email(
     except Exception as error:
         print(f"[ERROR] 문의 이메일 발송 실패: {error}")
         return False
-
-
-
 
 

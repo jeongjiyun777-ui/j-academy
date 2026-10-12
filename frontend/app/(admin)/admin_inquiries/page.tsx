@@ -27,6 +27,7 @@ export default function InquiryManagerPage() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
         },
       }
     );
@@ -186,4 +187,3 @@ export default function InquiryManagerPage() {
       </main>
     );
 }
-

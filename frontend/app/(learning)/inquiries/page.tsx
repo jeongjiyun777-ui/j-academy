@@ -88,6 +88,7 @@ export default function InquiryPage() {
       const response = await fetch(`${apiBaseUrl}/inquiries`, {
         method: "POST",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(inquiryData),
@@ -361,4 +362,3 @@ export default function InquiryPage() {
       </main>
     );
 }
-

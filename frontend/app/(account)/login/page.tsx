@@ -45,6 +45,7 @@ export default function Home() {
       {
         method: "POST",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -82,6 +83,7 @@ export default function Home() {
 
     await fetch(`${apiBaseUrl}/logout`, {
       method: "POST",
+      headers: { "ngrok-skip-browser-warning": "true" },
       credentials: "include",
     });
 
@@ -295,4 +297,3 @@ function handleApplicationClick(
       </main>
     );
   }
-

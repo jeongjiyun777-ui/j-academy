@@ -87,31 +87,51 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const savedUser = sessionStorage.getItem("displayUser");
-    if (!savedUser) {
-      localStorage.removeItem("access_token");
-      return;
-    }
+    const timer = window.setTimeout(() => {
+      const savedUser = sessionStorage.getItem("displayUser");
+      if (!savedUser) return;
 
-    try {
-      const user = JSON.parse(savedUser);
-
-      if (
-        typeof user.name !== "string" ||
-        !["manager", "student"].includes(user.role)
-      ) {
+      try {
+        const user = JSON.parse(savedUser);
+        if (
+          typeof user.name === "string" &&
+          ["manager", "student"].includes(user.role)
+        ) {
+          setUserName(user.name);
+          setUserRole(user.role);
+          setIsLoggedIn(true);
+        } else {
+          sessionStorage.removeItem("displayUser");
+        }
+      } catch {
         sessionStorage.removeItem("displayUser");
-        localStorage.removeItem("access_token");
-        return;
       }
+    }, 0);
 
-      setUserName(user.name);
-      setUserRole(user.role);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleSessionRestored = (event: Event) => {
+      const { name, role } = (event as CustomEvent<{ name: string; role: string }>).detail;
+      setUserName(name);
+      setUserRole(role);
       setIsLoggedIn(true);
-    } catch {
-      sessionStorage.removeItem("displayUser");
-      localStorage.removeItem("access_token");
-    }
+    };
+
+    const handleSessionExpired = () => {
+      setIsLoggedIn(false);
+      setUserName("");
+      setUserRole("");
+      setApplications([]);
+    };
+
+    window.addEventListener("auth-session-restored", handleSessionRestored);
+    window.addEventListener("auth-session-expired", handleSessionExpired);
+    return () => {
+      window.removeEventListener("auth-session-restored", handleSessionRestored);
+      window.removeEventListener("auth-session-expired", handleSessionExpired);
+    };
   }, []);
   
   async function handleLogout() {
@@ -124,6 +144,7 @@ export default function Home() {
       await fetch(`${apiBaseUrl}/logout`, {
         method: "POST",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
@@ -167,6 +188,7 @@ export default function Home() {
           {
             method: "GET",
             headers: {
+              "ngrok-skip-browser-warning": "true",
               Authorization: `Bearer ${token}`,
             },
           }
@@ -563,7 +585,6 @@ export default function Home() {
     </main>
   );
 }
-
 
 
 

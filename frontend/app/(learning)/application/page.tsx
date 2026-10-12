@@ -21,6 +21,7 @@ async function handleApplication(
     const response = await fetch(`${apiBaseUrl}/applications`, {
       method: "POST",
       headers: {
+        "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
 
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -192,4 +193,3 @@ async function handleApplication(
     </main>
   );
 }
-

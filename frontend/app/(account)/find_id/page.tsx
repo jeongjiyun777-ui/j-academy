@@ -45,6 +45,7 @@ export default function FindIdPage() {
       `${apiBaseUrl}/find-id?${params.toString()}`,
       {
         method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true" },
       }
     );
 
@@ -286,4 +287,3 @@ export default function FindIdPage() {
       </main>
     );
   }
-

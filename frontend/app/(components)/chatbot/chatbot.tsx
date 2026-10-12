@@ -88,6 +88,7 @@ export default function Chatbot() {
         {
           method: "POST",
           headers: {
+            "ngrok-skip-browser-warning": "true",
             "Content-Type": "application/json",
             ...(token
               ? {
@@ -168,6 +169,7 @@ export default function Chatbot() {
       const response = await fetch(`${apiBaseUrl}/me`, {
         method: "GET",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         credentials: "include",
@@ -255,6 +257,7 @@ export default function Chatbot() {
       const response = await fetch(`${apiBaseUrl}/chat/access`, {
         method: "GET",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -634,5 +637,4 @@ export default function Chatbot() {
     </div>
   );
 }
-
 

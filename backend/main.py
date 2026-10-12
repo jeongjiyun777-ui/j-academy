@@ -1,8 +1,10 @@
 import os
 import re
 import io
+import hashlib
+import secrets
 import pandas as pd
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import jwt
@@ -42,15 +44,8 @@ from 챗봇 import (
 
 BASE_DIR = Path(__file__).resolve().parent
 ENV_FILE = BASE_DIR / "config" / ".env"
-ENV_EXAMPLE_FILE = BASE_DIR / "config" / ".env.example"
 
-# Deployment platforms provide process environment variables. For local setup,
-# load config/.env when it exists; otherwise use the documented example values.
-load_dotenv(
-    dotenv_path=ENV_FILE
-    if ENV_FILE.exists() and ENV_FILE.read_text(encoding="utf-8").strip()
-    else ENV_EXAMPLE_FILE
-)
+load_dotenv(dotenv_path=ENV_FILE)
 
 
 DATABASE_URL = URL.create(
@@ -69,19 +64,6 @@ engine = create_engine(
 
 app = FastAPI()
 
-# Comma-separated production frontend origins, for example:
-# FRONTEND_ORIGINS=https://your-frontend.example.com
-production_frontend_origins = [
-    origin.strip()
-    for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
-    if origin.strip()
-]
-allowed_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    *production_frontend_origins,
-]
-
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.environ["SESSION_SECRET"],
@@ -91,17 +73,21 @@ app.add_middleware(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_origin_regex=(
-        r"^http://(localhost|127\.0\.0\.1|"
+        r"^(https://[a-z0-9-]+\.ngrok-free\.app|"
+        r"http://(localhost|127\.0\.0\.1|"
         r"10(?:\.[0-9]{1,3}){3}|"
         r"192\.168(?:\.[0-9]{1,3}){2}|"
         r"172\.(?:1[6-9]|2[0-9]|3[0-1])(?:\.[0-9]{1,3}){2}|"
-        r"100\.100\.100\.[0-9]{1,3}):3000$"
+        r"100\.100\.100\.[0-9]{1,3}):3000)$"
     ),
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
     expose_headers=["Content-Disposition"],
 )
 
@@ -116,6 +102,8 @@ password_hasher = PasswordHash.recommended()
 SECRET_KEY = os.environ["SESSION_SECRET"]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 14
+REFRESH_COOKIE_NAME = "refresh_token"
 
 security = HTTPBearer()
 
@@ -125,6 +113,66 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def hash_refresh_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def create_refresh_token(connection, user_id: int, role: str) -> str:
+    refresh_token = secrets.token_urlsafe(48)
+    token_hash = hash_refresh_token(refresh_token)
+    expires_at = datetime.now(timezone.utc) + timedelta(
+        days=REFRESH_TOKEN_EXPIRE_DAYS
+    )
+
+    connection.execute(
+        text("""
+            INSERT INTO public.refresh_tokens (
+                token_hash,
+                manager_id,
+                student_id,
+                expires_at
+            )
+            VALUES (
+                :token_hash,
+                :manager_id,
+                :student_id,
+                :expires_at
+            )
+        """),
+        {
+            "token_hash": token_hash,
+            "manager_id": user_id if role == "manager" else None,
+            "student_id": user_id if role == "student" else None,
+            "expires_at": expires_at,
+        },
+    )
+    return refresh_token
+
+
+def set_refresh_cookie(response: Response, request: Request, token: str) -> None:
+    is_https_origin = request.headers.get("origin", "").startswith("https://")
+    response.set_cookie(
+        key=REFRESH_COOKIE_NAME,
+        value=token,
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        httponly=True,
+        secure=is_https_origin,
+        samesite="none" if is_https_origin else "lax",
+        path="/",
+    )
+
+
+def delete_refresh_cookie(response: Response, request: Request) -> None:
+    is_https_origin = request.headers.get("origin", "").startswith("https://")
+    response.delete_cookie(
+        key=REFRESH_COOKIE_NAME,
+        httponly=True,
+        secure=is_https_origin,
+        samesite="none" if is_https_origin else "lax",
+        path="/",
+    )
 
 
 def get_current_student(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
@@ -234,6 +282,7 @@ class ResetPasswordRequest(BaseModel):
     name: str
     username: str
     phone: str
+    birth_date: date
     new_password: str = Field(min_length=8, max_length=64)
 
     @field_validator("new_password")
@@ -457,7 +506,11 @@ def create_first_manager():
 
 
 @app.post("/login")
-def login(login_data: LoginRequest):
+def login(
+    login_data: LoginRequest,
+    request: Request,
+    response: Response,
+):
     username = login_data.username.strip().lower()
     manager_query = text("""
         SELECT id, name, username, password_hash, status
@@ -471,71 +524,63 @@ def login(login_data: LoginRequest):
         WHERE username = :username
     """)
 
-    with engine.connect() as connection:
+    account = None
+    role = None
+
+    with engine.begin() as connection:
         manager = connection.execute(
             manager_query,
             {"username": username},
         ).mappings().one_or_none()
-        
-        if manager is not None:
-            if password_hasher.verify(
-                login_data.password,
-                manager["password_hash"],
-            ):
-            
-                token_payload = {
-                    "sub": manager["username"],
-                    "id": manager["id"],
-                    "role": "manager"
-                }
-    
-                access_token = create_access_token(token_payload)
-                
-                return {
-                    "message": "관리자 로그인 성공",
-                    "access_token": access_token,  
-                    "token_type": "bearer",
-                    "user": {
-                        "name": manager["name"],
-                        "username": manager["username"],
-                        "role": "manager",
-                    },
-                }
+        if manager is not None and password_hasher.verify(
+            login_data.password,
+            manager["password_hash"],
+        ):
+            account = dict(manager)
+            role = "manager"
+        else:
+            student = connection.execute(
+                student_query,
+                {"username": username},
+            ).mappings().one_or_none()
 
-        student = connection.execute(
-            student_query,
-            {"username": username},
-        ).mappings().one_or_none()
-
-        if student is not None:
-            if password_hasher.verify(
+            if student is not None and password_hasher.verify(
                 login_data.password,
                 student["password_hash"],
             ):
-        
-                token_payload = {
-                    "sub": student["username"],
-                    "id": student["id"],
-                    "role": "student"
-                }
-      
-                access_token = create_access_token(token_payload)
-                
-                return {
-                    "message": "회원 로그인 성공",
-                    "access_token": access_token, 
-                    "token_type": "bearer",
-                    "user": {
-                        "name": student["name"],
-                        "username": student["username"],
-                        "role": "student",
-                    },
-                }
+                account = dict(student)
+                role = "student"
 
-    raise HTTPException(
-        status_code=401,
-        detail="아이디 또는 비밀번호가 올바르지 않습니다.",
-    )
+        if account is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+            )
+
+        refresh_token = create_refresh_token(
+            connection,
+            user_id=account["id"],
+            role=role,
+        )
+
+    access_token = create_access_token({
+        "sub": account["username"],
+        "id": account["id"],
+        "role": role,
+    })
+    set_refresh_cookie(response, request, refresh_token)
+
+    return {
+        "message": "관리자 로그인 성공" if role == "manager" else "회원 로그인 성공",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": account["id"],
+            "name": account["name"],
+            "username": account["username"],
+            "role": role,
+        },
+    }
 
 def get_current_user_payload(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -569,9 +614,114 @@ def get_current_user(
         },
     }
 
+@app.post("/refresh")
+def refresh_access_token(
+    request: Request,
+    response: Response,
+):
+    old_token = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not old_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="리프레시 토큰이 없습니다. 다시 로그인해 주세요.",
+        )
+
+    old_token_hash = hash_refresh_token(old_token)
+
+    with engine.begin() as connection:
+        stored_token = connection.execute(
+            text("""
+                SELECT id, manager_id, student_id
+                FROM public.refresh_tokens
+                WHERE token_hash = :token_hash
+                  AND expires_at > CURRENT_TIMESTAMP
+                FOR UPDATE
+            """),
+            {"token_hash": old_token_hash},
+        ).mappings().one_or_none()
+
+        if stored_token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="리프레시 토큰이 유효하지 않거나 만료되었습니다.",
+            )
+
+        if stored_token["manager_id"] is not None:
+            role = "manager"
+            user_id = stored_token["manager_id"]
+            user_query = text("""
+                SELECT id, name, username
+                FROM managers
+                WHERE id = :user_id
+            """)
+        else:
+            role = "student"
+            user_id = stored_token["student_id"]
+            user_query = text("""
+                SELECT id, name, username
+                FROM students
+                WHERE id = :user_id
+            """)
+
+        account = connection.execute(
+            user_query,
+            {"user_id": user_id},
+        ).mappings().one_or_none()
+
+        if account is None:
+            connection.execute(
+                text("DELETE FROM public.refresh_tokens WHERE id = :id"),
+                {"id": stored_token["id"]},
+            )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="계정을 찾을 수 없습니다. 다시 로그인해 주세요.",
+            )
+
+        new_refresh_token = create_refresh_token(
+            connection,
+            user_id=user_id,
+            role=role,
+        )
+        connection.execute(
+            text("DELETE FROM public.refresh_tokens WHERE id = :id"),
+            {"id": stored_token["id"]},
+        )
+
+    access_token = create_access_token({
+        "sub": account["username"],
+        "id": account["id"],
+        "role": role,
+    })
+    set_refresh_cookie(response, request, new_refresh_token)
+
+    return {
+        "message": "토큰이 갱신되었습니다.",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": account["id"],
+            "name": account["name"],
+            "username": account["username"],
+            "role": role,
+        },
+    }
+
+
 @app.post("/logout")
-def logout(response: Response):
-    response.delete_cookie(key="access_token")
+def logout(request: Request, response: Response):
+    refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
+    if refresh_token:
+        with engine.begin() as connection:
+            connection.execute(
+                text("""
+                    DELETE FROM public.refresh_tokens
+                    WHERE token_hash = :token_hash
+                """),
+                {"token_hash": hash_refresh_token(refresh_token)},
+            )
+
+    delete_refresh_cookie(response, request)
     return {"message": "로그아웃되었습니다."}
 
 
@@ -1598,8 +1748,3 @@ def export_admin_inquiries(
             )
         },
     )
-
-
-
-
-

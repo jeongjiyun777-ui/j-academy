@@ -37,6 +37,7 @@ export default function StudentManagement() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
         },
       });
 
@@ -97,6 +98,7 @@ export default function StudentManagement() {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
       },
     });
 
@@ -139,6 +141,7 @@ export default function StudentManagement() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
         },
       }
     );
@@ -396,4 +399,3 @@ export default function StudentManagement() {
     </main>
   );
 }
-

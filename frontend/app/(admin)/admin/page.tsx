@@ -39,6 +39,7 @@ export default function AdminApplicationsPage() {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
           },
         }
       );
@@ -103,6 +104,7 @@ export default function AdminApplicationsPage() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({ updates }),
       });
@@ -354,4 +356,3 @@ export default function AdminApplicationsPage() {
     </main>
   );
 }
-

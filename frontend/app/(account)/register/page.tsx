@@ -142,6 +142,7 @@ export default function RegisterPage() {
       const response = await fetch(`${apiBaseUrl}/register`, {
         method: "POST",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -484,4 +485,3 @@ export default function RegisterPage() {
       </main>
     );
   }
-

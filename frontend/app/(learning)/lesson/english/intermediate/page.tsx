@@ -22,6 +22,7 @@ export default function LessonPage() {
         const response = await fetch(`${apiBaseUrl}/lesson/access?subject=chinese`, {
           method: "GET",
           headers: {
+            "ngrok-skip-browser-warning": "true",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
@@ -123,4 +124,3 @@ export default function LessonPage() {
     </div>
   );
 }
-

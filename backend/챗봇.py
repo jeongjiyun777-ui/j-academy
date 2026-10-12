@@ -7,13 +7,8 @@ from openai import OpenAI
 
 BACKEND_PATH = Path(__file__).resolve().parent
 ENV_FILE = BACKEND_PATH / "config" / ".env"
-ENV_EXAMPLE_FILE = BACKEND_PATH / "config" / ".env.example"
 
-load_dotenv(
-    dotenv_path=ENV_FILE
-    if ENV_FILE.exists() and ENV_FILE.read_text(encoding="utf-8").strip()
-    else ENV_EXAMPLE_FILE
-)
+load_dotenv(dotenv_path=ENV_FILE)
 
 
 client = OpenAI(

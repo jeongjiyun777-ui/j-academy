@@ -35,6 +35,7 @@ export default function StudentManagement() {
     try {
       const response = await fetch(`${apiBaseUrl}/admin/students?page=${page}`, {
         method: "GET",
+        cache: "no-store",
         headers: {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
@@ -42,12 +43,6 @@ export default function StudentManagement() {
       });
 
       const data = await response.json();
-
-      console.log("관리자 학생 목록 응답", {
-        url: `${apiBaseUrl}/admin/students?page=${page}`,
-        status: response.status,
-        data,
-      });
 
       if (!response.ok) {
         alert(data.detail ?? `회원 목록을 불러오지 못했습니다. (${response.status})`);
@@ -57,8 +52,7 @@ export default function StudentManagement() {
       setStudents(data.students ?? []);
       setTotalPages(data.total_pages || 1);
       setCurrentPage(data.page || page);
-    } catch (error) {
-      console.error("관리자 학생 목록 조회 오류:", error);
+    } catch {
       alert("관리자 회원 목록 서버와 통신할 수 없습니다.");
     }
   }

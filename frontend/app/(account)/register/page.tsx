@@ -141,6 +141,7 @@ export default function RegisterPage() {
 
       const response = await fetch(`${apiBaseUrl}/register`, {
         method: "POST",
+        cache: "no-store",
         headers: {
           "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
@@ -158,10 +159,6 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message ?? "회원가입이 완료되었습니다.");
-        router.push("/");
-
-
         setName("");
         setEmailId("");
         setEmailDomain("");
@@ -175,6 +172,8 @@ export default function RegisterPage() {
         setPhoneMiddle("");
         setPhoneLast("");
         setPasswordMessage("");
+        alert(data.message ?? "회원가입이 완료되었습니다.");
+        router.push("/");
       } else if (response.status === 400) {
         alert(data.detail ?? "입력값을 다시 확인해 주세요.");
       } else if (response.status === 409) {
@@ -182,8 +181,7 @@ export default function RegisterPage() {
       } else {
         alert(data.detail ?? "회원가입 중 서버 오류가 발생했습니다.");
       }
-    } catch (error) {
-      console.error("회원가입 전송 오류:", error);
+    } catch {
       alert("서버와 통신할 수 없습니다.");
     }
   }
@@ -221,7 +219,7 @@ export default function RegisterPage() {
         </div>
 
         <section className="relative z-10 w-full max-w-2xl rounded-2xl border border-slate-200/70 bg-white/95 p-6 shadow-xl shadow-slate-200/40 backdrop-blur-sm sm:p-10">
-          <form onSubmit={handleRegister} className="flex flex-col gap-10">
+          <form onSubmit={handleRegister} autoComplete="off" className="flex flex-col gap-10">
             
             <div className="flex flex-col gap-6">
               <h2 className="border-b border-slate-100 pb-2 text-lg font-bold text-slate-800">

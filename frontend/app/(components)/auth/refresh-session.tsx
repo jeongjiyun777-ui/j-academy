@@ -41,6 +41,7 @@ export default function RefreshSession() {
       try {
         const response = await fetch(`${apiBaseUrl}/refresh`, {
           method: "POST",
+          cache: "no-store",
           headers: { "ngrok-skip-browser-warning": "true" },
           credentials: "include",
         });
@@ -73,8 +74,8 @@ export default function RefreshSession() {
             detail: { name: result.user.name, role: result.user.role },
           })
         );
-      } catch (error) {
-        console.error("토큰 갱신 요청 오류:", error);
+      } catch {
+        // The next scheduled refresh attempt will retry the request.
       } finally {
         isRefreshing.current = false;
       }

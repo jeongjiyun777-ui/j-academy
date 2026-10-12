@@ -44,6 +44,7 @@ export default function Home() {
       `${apiBaseUrl}/login`,
       {
         method: "POST",
+        cache: "no-store",
         headers: {
           "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
@@ -74,7 +75,6 @@ export default function Home() {
     alert(data.detail ?? "아이디 또는 비밀번호가 올바르지 않습니다.");
   }
   
-  console.log(data); 
 }
 
   async function handleLogout() {

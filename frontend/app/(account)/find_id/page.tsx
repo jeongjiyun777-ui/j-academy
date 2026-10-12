@@ -35,17 +35,20 @@ export default function FindIdPage() {
     const birthDate =
       `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
-    const params = new URLSearchParams({
-      name: name.trim(),
-      phone: `${phoneFirst}${phoneMiddle}${phoneLast}`,
-      birth_date: birthDate,
-    });
-
     const response = await fetch(
-      `${apiBaseUrl}/find-id?${params.toString()}`,
+      `${apiBaseUrl}/find-id`,
       {
         method: "POST",
-        headers: { "ngrok-skip-browser-warning": "true" },
+        cache: "no-store",
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: `${phoneFirst}${phoneMiddle}${phoneLast}`,
+          birth_date: birthDate,
+        }),
       }
     );
 
@@ -55,6 +58,13 @@ export default function FindIdPage() {
       setUsername(data.username);
       setResultMessage(`아이디는 ${data.username}입니다.`);
       setIsFindSuccess(true);
+      setName("");
+      setPhoneFirst("");
+      setPhoneMiddle("");
+      setPhoneLast("");
+      setBirthYear("");
+      setBirthMonth("");
+      setBirthDay("");
     } else {
       setResultMessage(
         data.detail ?? "일치하는 회원 정보를 찾지 못했습니다."
@@ -99,7 +109,7 @@ export default function FindIdPage() {
             </p>
           </div>
 
-          <form className="flex flex-col gap-6" onSubmit={handleFindId}>
+          <form className="flex flex-col gap-6" autoComplete="off" onSubmit={handleFindId}>
             <div className="flex flex-col gap-2">
               <label htmlFor="name" className="text-base font-semibold text-slate-700">
                 이름 <span className="text-blue-600">*</span>

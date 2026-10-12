@@ -84,6 +84,7 @@ export default function FindpwPage() {
         `${apiBaseUrl}/reset-password/check-account`,
         {
           method: "POST",
+          cache: "no-store",
           headers: {
             "ngrok-skip-browser-warning": "true",
             "Content-Type": "application/json",
@@ -109,8 +110,7 @@ export default function FindpwPage() {
             : "계정 확인에 실패했습니다.";
         setResultMessage(errorMessage);
       }
-    } catch (error) {
-      console.error("계정 확인 오류:", error);
+    } catch {
       setIsAccountVerified(false);
       setResultMessage("서버와 통신할 수 없습니다. 백엔드 서버를 확인해 주세요.");
     }
@@ -141,6 +141,7 @@ export default function FindpwPage() {
         `${apiBaseUrl}/reset-password`,
         {
           method: "POST",
+          cache: "no-store",
           headers: {
             "ngrok-skip-browser-warning": "true",
             "Content-Type": "application/json",
@@ -187,8 +188,7 @@ export default function FindpwPage() {
         setResultMessage(errorMessage);
         setIsResetSuccess(false);
       }
-    } catch (error) {
-      console.error("비밀번호 변경 오류:", error);
+    } catch {
       setResultMessage("서버와 통신할 수 없습니다. 백엔드 서버를 확인해 주세요.");
       setIsResetSuccess(false);
     }
@@ -231,7 +231,7 @@ export default function FindpwPage() {
             </p>
           </div>
 
-          <form className="flex flex-col gap-5" onSubmit={handleAccountCheck}>
+          <form className="flex flex-col gap-5" autoComplete="off" onSubmit={handleAccountCheck}>
             <div className="flex flex-col gap-2">
               <label htmlFor="email-user" className="text-sm font-semibold text-slate-700">
                 아이디 <span className="text-blue-600">*</span>
@@ -371,7 +371,7 @@ export default function FindpwPage() {
           </form>
 
           {isAccountVerified && (
-            <form className="mt-8 flex flex-col gap-5 border-t border-slate-100 pt-8" onSubmit={handlePasswordReset}>
+            <form className="mt-8 flex flex-col gap-5 border-t border-slate-100 pt-8" autoComplete="off" onSubmit={handlePasswordReset}>
               <div className="mb-1 text-center">
                 <h3 className="text-xl font-bold text-slate-800">새 비밀번호 설정</h3>
                 <p className="mt-1 text-sm font-medium text-slate-500">사용할 새로운 비밀번호를 입력해 주세요.</p>

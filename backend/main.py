@@ -64,6 +64,24 @@ engine = create_engine(
 
 app = FastAPI()
 
+
+@app.middleware("http")
+async def prevent_sensitive_response_caching(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path in {
+        "/register",
+        "/login",
+        "/refresh",
+        "/logout",
+        "/find-id",
+        "/reset-password/check-account",
+        "/reset-password",
+    } or request.url.path.startswith("/admin/students"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.environ["SESSION_SECRET"],
@@ -379,7 +397,6 @@ def register_student(
             id,
             name,
             username,
-            birth_date,
             phone,
             created_at
     """)
@@ -446,7 +463,6 @@ def register_student(
 
     return {
         "message": "회원가입이 완료되었습니다.",
-        "student": dict(row),
     }
 
 
@@ -1190,11 +1206,7 @@ def search_admin_students(
 
 
 @app.post("/find-id")
-def find_id(
-    name: str,
-    phone: str,
-    birth_date: date,
-):
+def find_id(request: FindIdRequest):
     query = text("""
         SELECT username
         FROM students
@@ -1207,9 +1219,9 @@ def find_id(
         student = connection.execute(
             query,
             {
-                "name": name.strip(),
-                "phone": phone.strip(),
-                "birth_date": birth_date,
+                "name": request.name.strip(),
+                "phone": request.phone.strip(),
+                "birth_date": request.birth_date,
             },
         ).mappings().one_or_none()
 

@@ -8,6 +8,14 @@ Built independently with Next.js, FastAPI, and PostgreSQL, this project was desi
 
 > This is a personal learning and portfolio project currently being tested with a small group of users. The counseling UI is implemented; its current response is a subject- and level-specific availability message.
 
+## 📺 Project Demo Video
+
+[![J-Academy Walkthrough](https://img.youtube.com/vi/_D9eecQplGM/maxresdefault.jpg)](https://www.youtube.com/watch?v=_D9eecQplGM)
+
+> 👆 **Click the image above to watch the 3-minute core feature walkthrough on YouTube.**
+
+
+
 ## What it does
 
 Students can browse teachers for English, Spanish, Japanese, and Chinese, apply for a subject and class, and access counseling after approval. Administrators can search students, review and update enrollment status, and export student and inquiry lists to Excel.

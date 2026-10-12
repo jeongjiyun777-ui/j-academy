@@ -1,8 +1,11 @@
 fastapi
-uvicorn
-sqlalchemy
+uvicorn[standard]
+SQLAlchemy
 psycopg2-binary
 python-dotenv
-openai
-pwdlib
+PyJWT
+pwdlib[argon2]
 itsdangerous
+pandas
+openpyxl
+requests

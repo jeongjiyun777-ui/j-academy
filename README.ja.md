@@ -6,6 +6,12 @@
 
 受講生は会員登録後に科目とクラスを申請し、管理者は承認状態、受講生一覧、問い合わせ一覧を管理してExcelで出力できます。紹介ページではなく、役割別の権限と実際のデータフローを持つ運用サービスを目標にしました。
 
+## 📺 プロジェクト実演動画
+
+[![J-Academy 実演動画](https://img.youtube.com/vi/_D9eecQplGM/maxresdefault.jpg)](https://www.youtube.com/watch?v=_D9eecQplGM)
+
+> 👆 **画像をクリックすると、YouTubeで3分間の主要機能の実演動画をご視聴いただけます。**
+
 ## 解決する業務課題
 
 | 課題 | 実装 |

@@ -17,8 +17,7 @@ def send_brevo_email(subject: str, html_body: str) -> bool:
     api_key = os.getenv("BREVO_API_KEY", "").strip()
     sender_email = os.getenv("BREVO_SENDER_EMAIL", "").strip()
     sender_name = os.getenv("BREVO_SENDER_NAME", "제이온라인 학원").strip() or "제이온라인 학원"
-    # Preserve the existing administrator recipient independently of the sender.
-    recipient = os.getenv("ADMIN_NOTIFICATION_EMAIL", "").strip() or os.getenv("SMTP_USER", "").strip()
+    recipient = os.getenv("ADMIN_NOTIFICATION_EMAIL", "").strip()
     if not all((api_key, sender_email, recipient)):
         print("[ERROR] 이메일 발송 설정 누락")
         return False

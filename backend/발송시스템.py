@@ -3,10 +3,8 @@ import os
 from dotenv import load_dotenv
 from html import escape
 
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 import json
-import smtplib
+import requests
 
 BACKEND_PATH = Path(__file__).resolve().parent
 ENV_FILE = BACKEND_PATH / "config" / ".env"
@@ -15,24 +13,42 @@ load_dotenv(dotenv_path=ENV_FILE)
 
 
 
-def send_notification_email(name: str, phone: str) -> bool:
-    SMTP_CONFIG = {
-        "server": os.environ["SMTP_SERVER"],
-        "port": int(os.environ["SMTP_PORT"]),
-        "user": os.environ["SMTP_USER"],
-        "password": os.environ["SMTP_PASSWORD"],
-    }
+def send_brevo_email(subject: str, html_body: str) -> bool:
+    api_key = os.getenv("BREVO_API_KEY", "").strip()
+    sender_email = os.getenv("BREVO_SENDER_EMAIL", "").strip()
+    sender_name = os.getenv("BREVO_SENDER_NAME", "제이온라인 학원").strip() or "제이온라인 학원"
+    # Preserve the existing administrator recipient independently of the sender.
+    recipient = os.getenv("ADMIN_NOTIFICATION_EMAIL", "").strip() or os.getenv("SMTP_USER", "").strip()
+    if not all((api_key, sender_email, recipient)):
+        print("[ERROR] 이메일 발송 설정 누락")
+        return False
+    try:
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={"api-key": api_key, "Accept": "application/json"},
+            json={
+                "sender": {"name": sender_name, "email": sender_email},
+                "to": [{"email": recipient}],
+                "subject": subject,
+                "htmlContent": html_body,
+            },
+            timeout=(5, 15),
+            allow_redirects=False,
+        )
+        if response.status_code != 201:
+            print(f"[ERROR] Brevo 이메일 요청 실패: HTTP {response.status_code}")
+            return False
+        print("[INFO] Brevo 이메일 발송 요청 접수")
+        return True
+    except requests.RequestException as error:
+        print(f"[ERROR] 이메일 연결 실패: {type(error).__name__}")
+        return False
 
-    SMTP_SERVER = SMTP_CONFIG["server"]
-    SMTP_PORT = SMTP_CONFIG["port"]
-    SMTP_USER = SMTP_CONFIG["user"]
-    SMTP_PASSWORD = SMTP_CONFIG["password"]
+
+def send_notification_email(name: str, phone: str) -> bool:
 
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"신규회원: {name}님의 신규 가입 건"
-        msg["From"] = SMTP_USER
-        msg["To"] = SMTP_USER
+        subject_line = f"신규회원: {name}님의 신규 가입 건"
 
         raw_phone = str(phone)  
 
@@ -90,40 +106,19 @@ def send_notification_email(name: str, phone: str) -> bool:
         </body>
         </html>
         """
-        msg.attach(MIMEText(html_body, "html", "utf-8"))
-
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.send_message(msg)
-
-        print(f"[INFO] 이메일 발송 성공: {name}")
-        return True
+        return send_brevo_email(subject_line, html_body)
 
     except Exception as e:
-        print(f"[ERROR] 이메일 발송 실패: {e}")
+        print(f"[ERROR] 이메일 발송 실패: {type(e).__name__}")
         return False
 
 
 
 
 def send_subject_notification_email(name: str, subject: str, class_name: str,) -> bool:
-    SMTP_CONFIG = {
-        "server": os.environ["SMTP_SERVER"],
-        "port": int(os.environ["SMTP_PORT"]),
-        "user": os.environ["SMTP_USER"],
-        "password": os.environ["SMTP_PASSWORD"],
-    }
-
-    SMTP_SERVER = SMTP_CONFIG["server"]
-    SMTP_PORT = SMTP_CONFIG["port"]
-    SMTP_USER = SMTP_CONFIG["user"]
-    SMTP_PASSWORD = SMTP_CONFIG["password"]
 
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"과목신청: {name}님의 {subject}신청 건"
-        msg["From"] = SMTP_USER
-        msg["To"] = SMTP_USER
+        subject_line = f"과목신청: {name}님의 {subject}신청 건"
 
         html_body = f"""
         <!DOCTYPE html>
@@ -179,17 +174,10 @@ def send_subject_notification_email(name: str, subject: str, class_name: str,) -
         </body>
         </html>
         """
-        msg.attach(MIMEText(html_body, "html", "utf-8"))
-
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.send_message(msg)
-
-        print(f"[INFO] 이메일 발송 성공: {name}")
-        return True
+        return send_brevo_email(subject_line, html_body)
 
     except Exception as e:
-        print(f"[ERROR] 이메일 발송 실패: {e}")
+        print(f"[ERROR] 이메일 발송 실패: {type(e).__name__}")
         return False
 
 
@@ -202,17 +190,6 @@ def send_inquiries_email(
     title: str,
     content: str,
 ) -> bool:
-    SMTP_CONFIG = {
-        "server": os.environ["SMTP_SERVER"],
-        "port": int(os.environ["SMTP_PORT"]),
-        "user": os.environ["SMTP_USER"],
-        "password": os.environ["SMTP_PASSWORD"],
-    }
-
-    SMTP_SERVER = SMTP_CONFIG["server"]
-    SMTP_PORT = SMTP_CONFIG["port"]
-    SMTP_USER = SMTP_CONFIG["user"]
-    SMTP_PASSWORD = SMTP_CONFIG["password"]
 
     inquiry_type_label = {
         "consulting": "수강 및 학습 상담",
@@ -228,10 +205,7 @@ def send_inquiries_email(
     safe_content = escape(content.strip()).replace("\n", "<br>")
 
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"문의 접수: {safe_name}님의 {safe_title}"
-        msg["From"] = SMTP_USER
-        msg["To"] = SMTP_USER
+        subject_line = f"문의 접수: {safe_name}님의 {safe_title}"
 
         html_body = f"""
         <!DOCTYPE html>
@@ -292,17 +266,10 @@ def send_inquiries_email(
         </html>
         """
 
-        msg.attach(MIMEText(html_body, "html", "utf-8"))
-
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.send_message(msg)
-
-        print(f"[INFO] 문의 이메일 발송 성공: {name}")
-        return True
+        return send_brevo_email(subject_line, html_body)
 
     except Exception as error:
-        print(f"[ERROR] 문의 이메일 발송 실패: {error}")
+        print(f"[ERROR] 문의 이메일 발송 실패: {type(error).__name__}")
         return False
 
 

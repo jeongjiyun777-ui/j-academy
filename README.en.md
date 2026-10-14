@@ -1,103 +1,59 @@
-# J Foreign Language Online Academy
+# J Online Academy | Language School Workflow
 
-[한국어](README.md) | [English](README.en.md)
+[한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-**A full-stack portfolio project that connects student registration, course applications, administrator approval, and Excel reporting.**
+[Live site](https://j-academy-two.vercel.app/) · [Demo video](https://www.youtube.com/watch?v=_D9eecQplGM)
 
-Built independently with Next.js, FastAPI, and PostgreSQL, this project was designed to go beyond a landing page. Students and administrators use the same data through separate roles and workflows.
+A web application connecting student registration and course applications with administrator approval, lists, and email notifications. A personal portfolio planned, developed, and deployed by Jiyun Jeong across the frontend, backend, and database.
 
-> This is a personal learning and portfolio project currently being tested with a small group of users. The counseling UI is implemented; its current response is a subject- and level-specific availability message.
+## What the system handles
 
-## 📺 Project Demo Video
+A student selects a subject and class. The application is stored in the database, appears in the administrator's list, and triggers an email notification. Administrator approval updates the student's course information. This reduces copying applications and maintaining separate lists; approval decisions remain with the administrator.
 
-[![J-Academy Walkthrough](https://img.youtube.com/vi/_D9eecQplGM/maxresdefault.jpg)](https://www.youtube.com/watch?v=_D9eecQplGM)
+`Application → database → administrator notification/list → approval → student view`
 
-> 👆 **Click the image above to watch the 3-minute core feature walkthrough on YouTube.**
+## Features
 
+- Registration, duplicate username checks, masked username recovery, and password changes
+- Password hashing, student/administrator permissions, JWT login and refresh tokens
+- Course applications, duplicate prevention, status tracking, and bulk approval
+- Student search, paginated lists, and student/inquiry Excel exports
+- Administrator email notifications for registrations, applications, and inquiries
+- Mobile navigation and table scrolling, school/teacher pages, and course-based guidance
 
+## Problems and fixes
 
-## What it does
+| Problem | Change |
+| --- | --- |
+| Only one of several courses appeared | Returned multiple database rows and rendered a course list |
+| Page controls showed the same records | Connected total counts, LIMIT/OFFSET, and frontend page requests |
+| Sessions stopped after token expiry | Added refresh-token hashes in the database, HttpOnly cookies, rotation, and logout |
+| Email failed after deployment | Replaced SMTP with the Brevo HTTPS API and separated sender from administrator recipient |
+| Form text disappeared with device dark mode | Fixed the site's light color scheme to match its white form backgrounds |
+| Local requests worked but external requests failed | Checked actual responses, API URLs, and CORS; configured Vercel–Render communication |
+| Debug logs contained personal data | Removed frontend debug logs and restricted caching of sensitive responses |
 
-Students can browse teachers for English, Spanish, Japanese, and Chinese, apply for a subject and class, and access counseling after approval. Administrators can search students, review and update enrollment status, and export student and inquiry lists to Excel.
+## Architecture and local setup
 
-## Main features
+Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pydantic / PostgreSQL · SQLAlchemy / JWT · pwdlib / pandas · openpyxl · BackgroundTasks · Brevo
 
-- Required-field validation and duplicate username/phone checks
-- JWT authentication with separate student and administrator roles
-- Account lookup and password reset based on registered information
-- Subject and class applications with pending and approved statuses
-- Student search, 20-item pagination, page row numbering, and batch approval
-- Excel exports with sequential numbering and email notifications
-- Approved-subject counseling UI with personalized greetings and subject selection
-- Responsive mobile UI with touch-controlled menus and horizontally scrollable tables
+- **Vercel** serves the frontend; `NEXT_PUBLIC_API_BASE_URL` points to Render.
+- **Render** handles authentication and school workflows, then requests email delivery through Brevo.
+- **Neon** stores accounts, applications, inquiries, and tokens.
 
-## Stack
+`frontend/`: UI · `backend/main.py`: API/permissions/database · `backend/발송시스템.py`: email · `db/`: SQL schemas
 
-- Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS 4, Framer Motion
-- Backend: Python, FastAPI, Pydantic, Uvicorn
-- Database: PostgreSQL and SQLAlchemy
-- Authentication: JWT and password hashing
-- Reports and notifications: pandas, openpyxl, SMTP, FastAPI BackgroundTasks
+Apply `db/schema.sql` and `db/refresh_tokens.sql`, then configure database and authentication values in `backend/config/.env`. The deployment code uses `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`, and `ADMIN_NOTIFICATION_EMAIL`. Store real secrets in Render, outside the repository.
 
-## Data flow
-
-```text
-User input → React state → fetch request → FastAPI validation
-→ PostgreSQL query/update → JSON response → updated UI
+```bash
+# In backend/
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+# In frontend/ (.env.local: NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000)
+npm install
+npm run dev
 ```
 
-Protected endpoints receive Bearer tokens, and the server checks roles independently of the buttons displayed in the frontend.
+## Scope and next improvements
 
-## The bottlenecks I worked through
-
-At the beginning, when a feature failed, I did not know whether to inspect the UI, the request, the server, or the database. This project taught me to start with one question: **where exactly is the data flow blocked?** I then narrowed the problem down with evidence before changing code.
-
-### Multiple approved subjects
-
-A single-result query displayed only one enrolled subject in the chatbot. I changed the query to return every approved application and updated the frontend to render selectable subject and class tags.
-
-### Pagination that did not change records
-
-Navigation buttons alone did not change what the server returned. I connected frontend page requests with backend `LIMIT 20`, `OFFSET`, and total-count queries. This made page buttons, returned data, and row numbering work as one flow.
-
-### User-facing authorization feedback
-
-I did not leave 401, 403, and 422 responses as technical failures. The chatbot and forms now explain whether login, approval, or input correction is required.
-
-### `Failed to fetch` during external testing
-
-I initially suspected tokens and CORS. Comparing actual requests and responses showed that a tunnel warning page was returning HTML instead of the API JSON for some requests. I added the required request header and aligned the backend CORS headers. This taught me not to diagnose a browser CORS error from its label alone.
-
-### Mobile interaction
-
-Hover-only menus were changed to state-driven click/tap controls. Wide administrative tables retain readable information through horizontal scrolling rather than shrinking every column.
-
-## How I learned through this project
-
-I started with a basic form and a single database insert. `value`, `onChange`, JSON, API requests, and database queries were all new at first. I learned by following the complete path from a user input to a saved record and then back to a screen.
-
-AI assisted me with code drafts and explanations, but I tested changes by checking requests, responses, logs, and database records. When a screen broke or a request failed, I kept tracing the cause until I could explain why the change fixed it.
-
-I am still a junior developer with much to learn. My strength is not claiming to know every answer; it is staying with a problem, reproducing it, checking evidence, and connecting the fix across the interface, API, and database. I wanted this service to feel considered at the moment a user clicks, gets blocked, and needs a clear next step.
-
-## Project structure
-
-```text
-backend/   API, authentication, enrollment, administration, notifications
-db/        PostgreSQL schema
-frontend/  Next.js app, account, admin, learning, components, public assets
-README.md
-README.en.md
-```
-
-## Next steps
-
-- Incorporate feedback from real-device and family testing
-- Move from temporary tunnel testing to persistent deployment
-- Add expiring, single-use verification tokens to password recovery
-- Strengthen server-side matching of lessons against approved subjects/classes
-- Add automated coverage for authentication, duplicate registration, and pagination
-
----
-
-Personal learning and portfolio project · Planned and developed by Jeong Jiyun
+This is a learning/portfolio service: use test data instead of real personal information. The guidance screen returns prepared responses rather than calling an external AI model. Matching registration details is not phone identity verification; password recovery needs an additional one-time verification mechanism. The free backend may take time to wake up, and accepting an email request does not guarantee inbox delivery. Production use requires stronger account recovery, request limits, and device testing.

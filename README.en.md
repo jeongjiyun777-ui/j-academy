@@ -6,6 +6,18 @@
 
 A web application connecting student registration and course applications with administrator approval, lists, and email notifications. A personal portfolio planned, developed, and deployed by Jiyun Jeong across the frontend, backend, and database.
 
+## Try the live service
+
+No local setup is required. Open the [deployed service](https://j-academy-two.vercel.app/) and use these accounts on the [login page](https://j-academy-two.vercel.app/login).
+
+| Role | Username | Password |
+| --- | --- | --- |
+| Administrator | `admin1234@naver.com` | `ab#12345678` |
+| Student 1 | `rlfehd1234@naver.com` | `ab#12345678` |
+| Student 2 | `rlfehd123@naver.com` | `ab#12345678` |
+
+These are shared demo accounts. Do not enter real personal information. Other visitors may change the demo data, and the free backend may take time to wake up.
+
 ## What the system handles
 
 A student selects a subject and class. The application is stored in the database, appears in the administrator's list, and triggers an email notification. Administrator approval updates the student's course information. This reduces copying applications and maintaining separate lists; approval decisions remain with the administrator.
@@ -33,7 +45,11 @@ A student selects a subject and class. The application is stored in the database
 | Local requests worked but external requests failed | Checked actual responses, API URLs, and CORS; configured Vercel–Render communication |
 | Debug logs contained personal data | Removed frontend debug logs and restricted caching of sensitive responses |
 
-## Architecture and local setup
+## How I worked through problems
+
+I followed course applications beyond the form: from the student's input to database storage, administrator approval, and the updated student view. When something failed, I checked input state, request URLs and JSON, response codes, then SQL and database results. Fixing the single-course display required changes to both query results and frontend data structures. For pagination, I checked whether the returned records changed, rather than stopping at working-looking buttons. After local implementation, I revisited deployment URLs, authentication cookies, email delivery, and mobile inputs.
+
+## Technology and deployment
 
 Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pydantic / PostgreSQL · SQLAlchemy / JWT · pwdlib / pandas · openpyxl · BackgroundTasks · Brevo
 
@@ -43,16 +59,14 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 
 `frontend/`: UI · `backend/main.py`: API/permissions/database · `backend/발송시스템.py`: email · `db/`: SQL schemas
 
-Apply `db/schema.sql` and `db/refresh_tokens.sql`, then configure database and authentication values in `backend/config/.env`. The deployment code uses `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`, and `ADMIN_NOTIFICATION_EMAIL`. Store real secrets in Render, outside the repository.
+## Post-deployment validation — in progress
 
-```bash
-# In backend/
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload --port 8000
-# In frontend/ (.env.local: NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000)
-npm install
-npm run dev
-```
+Public-service validation and preparation for Locust load testing started on October 15, 2026. Load-test measurements have not yet been published.
+
+- Start with 10 simulated users, then increase load for individual scenarios such as course browsing, login, and application lists.
+- Compare Locust response times, failure rates, and throughput with server-side CPU and RAM usage.
+- Use test data and a separate test environment; exclude real notification emails.
+- Trace slow requests through logs and SQL, then document measured before/after results when available.
 
 ## Scope and next improvements
 

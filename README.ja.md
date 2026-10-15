@@ -6,6 +6,18 @@
 
 受講者の登録・受講申込みから、管理者の承認、名簿整理、メール通知までをつなぐWebサービスです。チョン・ジユンが企画、画面・サーバー・DBの開発、デプロイまで行った個人ポートフォリオです。
 
+## 公開サービスを試す
+
+インストール不要です。[公開サイト](https://j-academy-two.vercel.app/)にアクセスし、[ログイン画面](https://j-academy-two.vercel.app/login)で以下のアカウントを使用してください。
+
+| 権限 | ログインID | パスワード |
+| --- | --- | --- |
+| 管理者 | `admin1234@naver.com` | `ab#12345678` |
+| 受講者 1 | `rlfehd1234@naver.com` | `ab#12345678` |
+| 受講者 2 | `rlfehd123@naver.com` | `ab#12345678` |
+
+共有のデモアカウントです。実際の個人情報は入力しないでください。他の利用者の操作でデータが変わる場合があります。無料サーバーの初回応答には時間がかかることがあります。
+
 ## システムが処理すること
 
 受講者が科目とクラスを選ぶと、申込みがDBに保存され、管理者の一覧に表示されます。管理者にはメールでも通知します。承認すると受講者側の受講情報に反映されます。申込内容の転記や別の名簿作成を減らす仕組みです。承認の判断は管理者が行います。
@@ -33,7 +45,11 @@
 | ローカルでは動くが外部アクセスで失敗 | 実際の応答・API URL・CORSを確認し、VercelとRenderの接続を整理 |
 | デバッグログに個人情報が残る | フロントのログを削除し、機密応答のキャッシュを制限 |
 
-## 構成と起動
+## 問題を絞り込んだ開発過程
+
+申込みフォームの作成だけで終わらず、入力からDB保存、管理者の承認、受講者画面への反映までをつなぎました。不具合が出たときは、入力状態 → URL・JSON → 応答コード → SQL・DBの結果の順に確認しました。複数科目のうち1件しか表示されない問題では、取得結果と画面のデータ構造を両方修正しました。ページ分割もボタンの見た目だけで判断せず、実際に取得する行が変わるかを確認しました。ローカル実装後も、配信URL、認証Cookie、メール、モバイル入力を再確認して改善しました。
+
+## 技術と配信構成
 
 Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pydantic / PostgreSQL · SQLAlchemy / JWT · pwdlib / pandas · openpyxl · BackgroundTasks · Brevo
 
@@ -43,16 +59,14 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 
 `frontend/`：画面 · `backend/main.py`：API・権限・DB · `backend/발송시스템.py`：メール · `db/`：スキーマ
 
-`db/schema.sql`、`db/refresh_tokens.sql`を適用し、`backend/config/.env`にDB・認証設定を入力します。配信用コードでは`BREVO_API_KEY`、`BREVO_SENDER_EMAIL`、`BREVO_SENDER_NAME`、`ADMIN_NOTIFICATION_EMAIL`を使用します。実際の秘密情報はRenderに保存し、リポジトリへ公開しません。
+## デプロイ後の検証 — 進行中
 
-```bash
-# backend フォルダー
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload --port 8000
-# frontend フォルダー (.env.local: NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000)
-npm install
-npm run dev
-```
+2026年10月15日から、公開後の利用確認とLocustによる負荷テストの準備を進めています。負荷テストの測定結果はまだ公開していません。
+
+- 仮想ユーザー10人から始め、科目閲覧・ログイン・申込一覧などのシナリオごとに負荷を段階的に増やします。
+- Locustの応答時間・失敗率・処理件数と、サーバー側のCPU・RAMを合わせて確認します。
+- テストデータと別の検証環境を使い、実際の通知メール送信は対象外にします。
+- 遅い要求のログ・SQLを比較し、改善前後の測定結果がそろったらREADMEに記録します。
 
 ## 対象範囲と今後の改善
 

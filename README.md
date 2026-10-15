@@ -6,6 +6,18 @@
 
 학생의 가입과 수강신청을 받아 관리자의 승인, 명단 정리, 이메일 알림까지 연결한 웹 서비스입니다. 정지윤이 기획부터 화면·서버·DB 개발과 배포까지 진행한 개인 포트폴리오입니다.
 
+## 바로 사용해 보기
+
+별도 설치 없이 [배포된 서비스](https://j-academy-two.vercel.app/)에서 사용할 수 있습니다. [로그인 화면](https://j-academy-two.vercel.app/login)에서 아래 계정으로 기능을 확인해 주세요.
+
+| 역할 | 아이디 | 비밀번호 |
+| --- | --- | --- |
+| 관리자 | `admin1234@naver.com` | `ab#12345678` |
+| 학생 1 | `rlfehd1234@naver.com` | `ab#12345678` |
+| 학생 2 | `rlfehd123@naver.com` | `ab#12345678` |
+
+공용 체험 계정입니다. 실제 개인정보는 입력하지 말아 주세요. 다른 체험자의 작업으로 데이터가 달라질 수 있으며, 무료 서버의 첫 응답은 시간이 걸릴 수 있습니다.
+
 ## 시스템이 대신 하는 일
 
 학생이 과목과 반을 신청하면 신청서가 DB에 저장되고 관리자 화면에 나타납니다. 관리자에게 이메일 알림도 보냅니다. 관리자가 승인하면 학생의 수강 정보에 반영됩니다. 직원이 신청서를 다시 옮겨 적거나 명단을 따로 만들 필요를 줄이는 구조입니다. 승인 판단은 관리자가 합니다.
@@ -33,7 +45,11 @@
 | 로컬에서는 작동하지만 외부 요청 실패 | API 주소·CORS·실제 응답을 확인하고 Vercel과 Render 연결 설정 정리 |
 | 개인정보가 디버그 로그에 남음 | 프론트 디버그 로그 제거, 민감한 응답의 캐시 제한 |
 
-## 구성과 실행
+## 문제를 좁혀 가며 개발한 과정
+
+수강신청 화면을 만드는 데서 끝내지 않고, 학생이 보낸 값이 DB에 저장되고 관리자 승인 후 다시 학생에게 보일 때까지 연결했습니다. 문제가 생기면 입력 상태 → 요청 주소·JSON → 응답 코드 → SQL·DB 결과 순서로 확인했습니다. 여러 과목 중 하나만 표시되는 문제는 조회 결과와 화면의 자료 구조를 함께 고쳤고, 페이지네이션은 버튼 모양보다 실제 조회 범위가 바뀌는지 확인했습니다. 로컬 구현 후에도 배포 주소, 인증 쿠키, 메일 전송, 모바일 입력을 다시 점검하며 수정했습니다.
+
+## 기술과 배포 구성
 
 Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pydantic / PostgreSQL · SQLAlchemy / JWT · pwdlib / pandas · openpyxl · BackgroundTasks · Brevo
 
@@ -43,16 +59,14 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 
 `frontend/`: 화면 · `backend/main.py`: API·권한·DB 처리 · `backend/발송시스템.py`: 이메일 · `db/`: 스키마
 
-로컬 실행은 `db/schema.sql`, `db/refresh_tokens.sql` 적용 후 `backend/config/.env`에 DB·인증 설정을 넣습니다. 배포용 메일 코드는 `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`, `ADMIN_NOTIFICATION_EMAIL`을 사용합니다. 실제 비밀값은 Render에 설정하고 저장소에 올리지 않습니다.
+## 배포 후 검증 — 진행 중
 
-```bash
-# backend 폴더
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload --port 8000
-# frontend 폴더 (.env.local: NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000)
-npm install
-npm run dev
-```
+2026년 10월 15일부터 공개 배포 이후의 사용 검증과 Locust 부하 테스트 준비를 진행하고 있습니다. 아직 부하 테스트 측정 결과는 게시하지 않았습니다.
+
+- 가상 사용자 10명부터 시작해 과목 조회·로그인·신청 목록 등 시나리오별로 부하를 단계적으로 늘립니다.
+- Locust의 응답 시간·실패율·초당 처리량과 서버 측 CPU·RAM을 함께 확인합니다.
+- 테스트 데이터와 별도 테스트 환경을 사용하고, 실제 알림 메일 발송은 제외합니다.
+- 느려지는 구간의 요청·로그·SQL을 비교하고, 변경 전후 결과가 확보되면 README에 기록합니다.
 
 ## 범위와 남은 개선
 

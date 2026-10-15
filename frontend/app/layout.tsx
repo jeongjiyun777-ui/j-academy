@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "학원 관리 시스템",
+  title: "j-academy",
   description: "학생과 학원 업무를 관리하는 서비스",
   formatDetection: {
     telephone: false,

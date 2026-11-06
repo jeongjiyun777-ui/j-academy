@@ -68,6 +68,12 @@ Public-service validation and preparation for Locust load testing started on Oct
 - Use test data and a separate test environment; exclude real notification emails.
 - Trace slow requests through logs and SQL, then document measured before/after results when available.
 
+### Learning Linux bottleneck analysis — 2026-11-06
+
+- Studied how to investigate slow responses before increasing instance capacity: CPU time percentages (`us/sy/id`), runnable processes (`r`), swap activity (`si/so`), and I/O-wait indicators (`wa/b`) in [`vmstat`](https://man7.org/linux/man-pages/man8/vmstat.8.html).
+- Plan to combine `top`, `free`, and `iostat` with request logs, SQL, and external API timings, then compare before/after behavior with Locust.
+- This records learning the tools and metrics, not a confirmed production bottleneck or demonstrated performance improvement. Local `vmstat` readings are distinct from resource metrics on the remote Render server.
+
 ## Scope and next improvements
 
 This is a learning/portfolio service: use test data instead of real personal information. The guidance screen returns prepared responses rather than calling an external AI model. Matching registration details is not phone identity verification; password recovery needs an additional one-time verification mechanism. The free backend may take time to wake up, and accepting an email request does not guarantee inbox delivery. Production use requires stronger account recovery, request limits, and device testing.

@@ -74,6 +74,12 @@ Public-service validation and preparation for Locust load testing started on Oct
 - Plan to combine `top`, `free`, and `iostat` with request logs, SQL, and external API timings, then compare before/after behavior with Locust.
 - This records learning the tools and metrics, not a confirmed production bottleneck or demonstrated performance improvement. Local `vmstat` readings are distinct from resource metrics on the remote Render server.
 
+#### Available memory and swap activity — 2026-11-08
+
+In the `Mem:` row of `free -h`, `available` estimates how much memory new workloads can use without swapping. Even when `free` is low, reclaimable cache can leave room for new work.
+
+In `vmstat`, `si` and `so` show the rates of data moving from swap to RAM and from RAM to swap, respectively. In the next Locust test, I plan to check whether API response times rise when available memory falls and swap activity persists.
+
 ## Scope and next improvements
 
 This is a learning/portfolio service: use test data instead of real personal information. The guidance screen returns prepared responses rather than calling an external AI model. Matching registration details is not phone identity verification; password recovery needs an additional one-time verification mechanism. The free backend may take time to wake up, and accepting an email request does not guarantee inbox delivery. Production use requires stronger account recovery, request limits, and device testing.

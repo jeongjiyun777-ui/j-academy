@@ -1,6 +1,9 @@
+import { Nanum_Myeongjo } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import ReviewCarousel from "./ReviewCarousel";
+
+const reviewTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
 
 const sectionClass =
   "w-full scroll-mt-64 rounded-2xl border border-slate-300 bg-white px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36";
@@ -16,6 +19,14 @@ export default function HomeSections() {
         <Image
           src="/J-academy1.png"
           alt="J-academy"
+          width={1672}
+          height={941}
+          sizes="100vw"
+          className="block h-auto w-full"
+        />
+        <Image
+          src="/j-academy2.png"
+          alt="J-academy 두 번째 소개 배너"
           width={1672}
           height={941}
           sizes="100vw"
@@ -40,7 +51,7 @@ export default function HomeSections() {
             <path transform="translate(71 7)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
             <path transform="translate(94 16)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
           </svg>
-          <h2 id="reviews-heading" className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-6 py-2.5 text-[clamp(1.375rem,3.5vw,2rem)] font-semibold leading-tight tracking-[-0.045em] text-slate-900 sm:px-8 sm:py-3">
+          <h2 id="reviews-heading" className={`${reviewTitleFont.className} px-4 text-[clamp(1.75rem,4vw,2.5rem)] leading-tight tracking-[-0.035em] text-slate-900`}>
             베스트 수강평
           </h2>
         </div>

@@ -32,7 +32,13 @@ export default function HomeSections() {
       </section>
 
       <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-y border-slate-200 bg-white py-10 -mx-4 sm:-mx-6 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36">
-        <h2 id="reviews-heading" className="text-center text-2xl font-bold tracking-tight text-slate-900">
+        <h2 id="reviews-heading" className="flex items-center justify-center gap-3 text-[clamp(1.75rem,4vw,2.5rem)] font-semibold leading-tight tracking-[-0.05em] text-slate-900">
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-sky-50 text-blue-600 ring-1 ring-inset ring-sky-100">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="size-5">
+              <path d="M7 17.5 4 20v-5.2A7 7 0 0 1 4 6.5C5.8 4.8 8.4 4 12 4c5.1 0 8 2.6 8 6.5S17.1 17 12 17H8.5L7 17.5Z" />
+              <path d="M8 9h8m-8 3h5" />
+            </svg>
+          </span>
           수강평
         </h2>
         <ReviewCarousel />

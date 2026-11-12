@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: "/j-academy-logo-web.png" },
   title: "j-academy",
   description: "학생과 학원 업무를 관리하는 서비스",
   formatDetection: {

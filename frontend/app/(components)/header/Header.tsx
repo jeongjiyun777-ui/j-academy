@@ -317,34 +317,50 @@ export default function Header() {
             </Link>
           </div>
         ) : (
-          <details className="group relative min-w-0">
-            <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
-              <HeaderIcon name="user" />
-              <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
-              <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
-              <HeaderIcon name="chevron" small />
-            </summary>
-            <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
-              {canAccessLessons && (
-                <>
-                  <Link href="/application" className={accountClass}>수강 신청</Link>
-                  <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
-                  {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
-                  {applications.map((application) => {
-                    const key = `${application.subject}-${application.class_name}`;
-                    if (application.status !== "승인완료") {
-                      return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
-                    }
-                    const lesson = lessonLinkBySubjectAndClass[
-                      application.subject as keyof typeof lessonLinkBySubjectAndClass
-                    ]?.[application.class_name as "A반" | "B반" | "C반"];
-                    return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
-                  })}
-                </>
-              )}
-              <button type="button" onClick={handleLogout} className={`${accountClass} w-full text-left`}>로그아웃</button>
-            </div>
-          </details>
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            {canAccessLessons ? (
+              <details className="group relative min-w-0">
+                <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+                  <HeaderIcon name="user" />
+                  <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
+                  <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
+                  <HeaderIcon name="chevron" small />
+                </summary>
+                <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                  {canAccessLessons && (
+                    <>
+                      <Link href="/application" className={accountClass}>수강 신청</Link>
+                      <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
+                      {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
+                      {applications.map((application) => {
+                        const key = `${application.subject}-${application.class_name}`;
+                        if (application.status !== "승인완료") {
+                          return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
+                        }
+                        const lesson = lessonLinkBySubjectAndClass[
+                          application.subject as keyof typeof lessonLinkBySubjectAndClass
+                        ]?.[application.class_name as "A반" | "B반" | "C반"];
+                        return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
+                      })}
+                    </>
+                  )}
+                </div>
+              </details>
+            ) : (
+              <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <HeaderIcon name="user" />
+                <span className="truncate">{userName}</span>
+                <span className="shrink-0">관리자님</span>
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="shrink-0 whitespace-nowrap rounded-md px-2 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700 md:text-sm"
+            >
+              로그아웃
+            </button>
+          </div>
         )}
       </div>
 

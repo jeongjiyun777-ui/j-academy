@@ -117,10 +117,10 @@ export default function InquiryForm() {
   }
 
   return (
-    <form onSubmit={handleInquirySubmit} className="flex flex-col gap-8">
+    <form onSubmit={handleInquirySubmit} className="flex w-full flex-col gap-7 font-sans tracking-tight sm:gap-8">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <label htmlFor="name" className="text-sm font-semibold text-slate-700">
+          <label htmlFor="name" className="text-sm font-medium text-slate-700">
             이름 <span className="text-blue-600">*</span>
           </label>
           <input
@@ -130,7 +130,7 @@ export default function InquiryForm() {
             value={name} 
             onChange={handleInquiryInputChange} 
             placeholder="홍길동"
-            className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            className="rounded-xl border border-transparent bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
             required
           />
         </div>
@@ -138,7 +138,7 @@ export default function InquiryForm() {
         <div className="flex flex-col gap-2">
           <label
             htmlFor="phone-first"
-            className="text-sm font-semibold text-slate-700"
+            className="text-sm font-medium text-slate-700"
           >
             연락처 <span className="text-blue-600">*</span>
           </label>
@@ -155,7 +155,7 @@ export default function InquiryForm() {
               pattern="[0-9]{3}"
               value={phoneFirst}
               onChange={(event) => setPhoneFirst(event.target.value)}
-              className="w-20 rounded-lg border border-slate-300 px-3 py-2 text-center"
+              className="min-w-0 flex-1 rounded-xl border border-transparent bg-white px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
               required
             />
 
@@ -173,7 +173,7 @@ export default function InquiryForm() {
               aria-label="전화번호 가운데 자리"
               value={phoneMiddle}
               onChange={(event) => setPhoneMiddle(event.target.value)}
-              className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-center"
+              className="min-w-0 flex-1 rounded-xl border border-transparent bg-white px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
               required
             />
 
@@ -191,7 +191,7 @@ export default function InquiryForm() {
               aria-label="전화번호 마지막 자리"
               value={phoneLast}
               onChange={(event) => setPhoneLast(event.target.value)}
-              className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-center"
+              className="min-w-0 flex-1 rounded-xl border border-transparent bg-white px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
               required
             />
           </div>
@@ -199,7 +199,7 @@ export default function InquiryForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="inquiry_type" className="text-sm font-semibold text-slate-700">
+        <label htmlFor="inquiry_type" className="text-sm font-medium text-slate-700">
           문의 유형 <span className="text-blue-600">*</span>
         </label>
         <div className="relative">
@@ -208,7 +208,7 @@ export default function InquiryForm() {
             name="inquiry_type" 
             value={inquiryType} 
             onChange={handleInquiryInputChange} 
-            className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            className="w-full appearance-none rounded-xl border border-transparent bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
             required
           >
             <option value="">문의 유형을 선택해 주세요</option>
@@ -230,7 +230,7 @@ export default function InquiryForm() {
         <div className="flex flex-col gap-2">
           <label
             htmlFor="title"
-            className="text-sm font-semibold text-slate-700"
+            className="text-sm font-medium text-slate-700"
           >
             제목 <span className="text-blue-600">*</span>
           </label>
@@ -242,7 +242,7 @@ export default function InquiryForm() {
             value={title}
             onChange={handleInquiryInputChange}
             placeholder="문의하실 내용의 제목을 입력해 주세요"
-            className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            className="rounded-xl border border-transparent bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
             required
           />
 
@@ -254,7 +254,7 @@ export default function InquiryForm() {
         <div className="flex flex-col gap-2">
           <label
             htmlFor="content"
-            className="text-sm font-semibold text-slate-700"
+            className="text-sm font-medium text-slate-700"
           >
             문의 내용 <span className="text-blue-600">*</span>
           </label>
@@ -266,7 +266,7 @@ export default function InquiryForm() {
             onChange={handleInquiryInputChange}
             rows={6}
             placeholder="궁금하신 점이나 겪고 계신 문제를 자세히 적어주시면 더욱 정확한 안내가 가능합니다."
-            className="resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            className="resize-none rounded-xl border border-transparent bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
             required
           />
 
@@ -275,8 +275,6 @@ export default function InquiryForm() {
           </p>
         </div>
       </div>
-
-      <div className="h-px w-full bg-slate-200/80" />
 
       <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
         <label className="group flex cursor-pointer items-start gap-3 sm:items-center">
@@ -305,10 +303,10 @@ export default function InquiryForm() {
         <button
           type="submit"
           disabled={!isAgreed}
-          className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold transition-all duration-200 sm:w-auto ${
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold tracking-[-0.025em] transition-all duration-200 sm:w-auto ${
             isAgreed
-              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/30 active:scale-[0.98]"
-              : "cursor-not-allowed bg-slate-300 text-slate-100 shadow-none"
+              ? "bg-slate-900 text-white hover:bg-blue-700 active:scale-[0.98]"
+              : "cursor-not-allowed bg-slate-200 text-slate-600"
           }`}
         >
           <span>문의 접수하기</span>

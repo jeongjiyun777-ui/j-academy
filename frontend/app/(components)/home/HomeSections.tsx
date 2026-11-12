@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import ReviewCarousel from "./ReviewCarousel";
 
 const sectionClass =
   "w-full scroll-mt-64 rounded-2xl border border-slate-300 bg-white px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36";
@@ -34,9 +35,7 @@ export default function HomeSections() {
         <h2 id="reviews-heading" className="text-2xl font-bold tracking-tight text-slate-900">
           수강평
         </h2>
-        <Link href="/reviews" className="mt-4 inline-block font-semibold text-blue-700 hover:underline">
-          수강평 전체 보기
-        </Link>
+        <ReviewCarousel />
       </section>
 
       <section id="notice" aria-labelledby="notice-heading" className={sectionClass}>

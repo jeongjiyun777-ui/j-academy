@@ -263,7 +263,25 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 -mx-6 -mt-6 mb-6 bg-white shadow-sm">
-      <div aria-hidden="true" className="h-6 border-b border-slate-200 bg-slate-50 sm:h-7" />
+      <div className="w-full border-b border-slate-800 bg-slate-900 px-4 py-2 text-white">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px]">
+          <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center tracking-tight text-slate-200">
+            <span className="font-bold text-sky-400">✨ 11/15 마감 임박</span>
+            <span aria-hidden="true" className="hidden text-slate-500 sm:inline">|</span>
+            <span>
+              영어·스페인어·일본어·중국어{" "}
+              <strong className="font-semibold text-white">첫 달 수강료 20% 얼리버드 혜택</strong>
+            </span>
+          </p>
+          <Link
+            href="/register_agree"
+            className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-900 shadow-xs transition-colors hover:bg-sky-50 sm:text-xs"
+          >
+            <span>할인 쿠폰 받기</span>
+            <span aria-hidden="true" className="font-extrabold text-blue-600">&gt;</span>
+          </Link>
+        </div>
+      </div>
       <div className="relative w-full border-b border-slate-200">
         <div className="mx-auto flex min-h-[60px] max-w-[1440px] items-center justify-between gap-2.5 px-4 md:min-h-20 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-3 lg:px-7">
           <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -272,7 +290,7 @@ export default function Header() {
               <span className="text-[17px] leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[19px]">
                 제이 외국어
               </span>
-              <span className="mt-0.5 text-[12px] leading-none font-medium tracking-tight text-emerald-600">
+              <span className="mt-0.5 text-[12px] leading-none font-medium tracking-tight bg-linear-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
                 온라인 학원
               </span>
             </span>
@@ -332,7 +350,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => window.alert("로그인이 필요한 서비스입니다.")}
-                className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-emerald-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 sm:px-3.5"
+                className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:from-sky-600 hover:to-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:px-3.5"
               >
                 <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />
                 <span className="text-[11px] leading-none font-semibold tracking-tight sm:text-xs">수강결제</span>

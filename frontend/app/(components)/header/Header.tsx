@@ -1,5 +1,6 @@
 "use client";
 
+import { CreditCard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -263,9 +264,16 @@ export default function Header() {
   return (
     <header className="relative z-50 -mx-6 -mt-6 mb-6 border-b border-slate-200 bg-white shadow-sm md:sticky md:top-0">
       <div className="mx-auto flex min-h-16 max-w-[1440px] items-center justify-between gap-3 px-4 md:min-h-24 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-4 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-slate-900 md:gap-3 md:text-xl">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-md md:gap-3">
           <Image src="/j-academy-logo-web.png" alt="" width={40} height={40} className="size-8 object-contain md:size-10" priority />
-          제이온라인
+          <span className="flex flex-col gap-1 whitespace-nowrap">
+            <span className="text-lg leading-none font-semibold tracking-tight text-slate-900 md:text-xl">
+              제이<span className="text-blue-700">온라인</span>
+            </span>
+            <span className="text-[11px] leading-none font-medium tracking-wide text-slate-500">
+              외국어 학원
+            </span>
+          </span>
         </Link>
 
         <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:order-last md:flex md:basis-full lg:order-none lg:basis-auto lg:gap-3 xl:gap-7">
@@ -314,10 +322,18 @@ export default function Header() {
 
         {!isLoggedIn ? (
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
-            <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md p-2 text-xs font-semibold text-slate-600 hover:text-blue-700 md:text-sm">
+            <button
+              type="button"
+              onClick={() => window.alert("로그인이 필요한 서비스입니다.")}
+              className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-emerald-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 sm:px-3.5"
+            >
+              <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />
+              <span className="text-[11px] leading-none font-semibold tracking-tight sm:text-xs">수강결제</span>
+            </button>
+            <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
               <HeaderIcon name="login" /> 로그인
             </Link>
-            <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md p-2 text-xs font-semibold text-slate-600 hover:text-blue-700 md:text-sm">
+            <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
               <HeaderIcon name="signup" /> 회원가입
             </Link>
           </div>

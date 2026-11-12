@@ -87,6 +87,16 @@ In `vmstat`, `si` and `so` show the rates of data moving from swap to RAM and fr
 - **Next implementation** — I plan to create orders in Spring Boot using the database price and start with simulated payments. A database unique constraint and transaction will let only one concurrent request claim an attempt. When integrating a payment provider, I plan to use its idempotency keys and payment status lookup where supported.
 - **Locust validation plan** — Send ten concurrent requests with the same key in a test environment and verify that the database records one payment. Generate load across distinct orders as well and track p95 latency, error rate, throughput, database lock waits, and connection pool usage. I plan to tune timeouts and concurrency limits based on the measurements. The payment API and payment load measurements are planned.
 
+### Spring Boot member authentication practice
+
+- **Starting the server** — I started the server by calling `SpringApplication.run()` from `main()`. `@SpringBootApplication` marks the starting point for application configuration, and `import` makes class and annotation names available in the source file.
+- **Two directions of an HTTP request** — In a `@RestController`, `@GetMapping("/checkout/session")` maps an incoming GET request to a Java method. Inside that method, `RestClient` forwards the Bearer token to the existing FastAPI `/me` endpoint. I kept the client in a `private final` field so the controller can reuse it.
+- **Exceptions and responses** — Java's `try/catch` serves the same purpose as Python's `try/except`. `catch` handles an exception, and `return` sends a response. The endpoint returns `502` when the auth service fails and `401` when the token is missing or rejected.
+- **What I verified** — Calling the local Java server from PowerShell without a token returned `401` and `WWW-Authenticate: Bearer`. A separate test with a stub auth service verified `200` for a student, `403` for a manager, and `401` for missing or invalid tokens.
+- **Next exercise** — I plan to call FastAPI `POST /refresh` with a real HttpOnly cookie, pass the issued access token to Java from memory, and verify the returned student ID. After that, I will read course prices from the database and save pending-payment orders.
+
+[Spring Boot authentication code](checkout-api/src/main/java/com/jacademy/checkout)
+
 ## Scope and next improvements
 
 This is a learning/portfolio service: use test data instead of real personal information. The guidance screen returns prepared responses rather than calling an external AI model. Matching registration details is not phone identity verification; password recovery needs an additional one-time verification mechanism. The free backend may take time to wake up, and accepting an email request does not guarantee inbox delivery. Production use requires stronger account recovery, request limits, and device testing.

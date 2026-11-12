@@ -11,7 +11,12 @@ interface InquiryPayload {
 }
 
 
-export default function InquiryForm() {
+interface InquiryFormProps {
+  id?: string;
+  className?: string;
+}
+
+export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
   const [inquiryType, setInquiryType] = useState("");
   const [name, setName] = useState("");
   const [phoneFirst, setPhoneFirst] = useState("");
@@ -117,7 +122,7 @@ export default function InquiryForm() {
   }
 
   return (
-    <form onSubmit={handleInquirySubmit} className="flex w-full flex-col gap-7 font-sans tracking-tight sm:gap-8">
+    <form id={id} aria-label="문의하기" onSubmit={handleInquirySubmit} className={`flex w-full flex-col gap-7 font-sans tracking-tight sm:gap-8 ${className}`}>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-slate-700">

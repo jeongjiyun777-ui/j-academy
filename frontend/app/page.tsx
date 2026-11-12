@@ -7,15 +7,7 @@ export default function Home() {
     <main className="min-h-screen w-full bg-slate-100 pb-6">
       <HomeSections />
 
-      <h2
-        id="inquiries"
-        className="scroll-mt-64 px-5 pt-12 text-center font-sans text-3xl font-semibold leading-tight tracking-[-0.055em] text-slate-900 sm:pt-16 sm:text-4xl md:scroll-mt-44 lg:scroll-mt-36"
-      >
-        문의하기
-      </h2>
-      <div className="mx-auto mt-8 w-full max-w-4xl px-5 pb-12 sm:mt-10 sm:px-8 sm:pb-16">
-        <InquiryForm />
-      </div>
+      <InquiryForm id="inquiries" className="mx-auto max-w-4xl scroll-mt-64 px-5 py-12 sm:px-8 sm:py-16 md:scroll-mt-44 lg:scroll-mt-36" />
 
       <section
         id="notice"

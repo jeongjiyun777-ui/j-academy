@@ -2,7 +2,9 @@ import { Nanum_Myeongjo } from "next/font/google";
 import Image from "next/image";
 import ReviewCarousel from "./ReviewCarousel";
 
-const reviewTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
+const homeTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
+
+export const homeTitleClassName = `${homeTitleFont.className} text-[clamp(1.75rem,4vw,2.5rem)] leading-tight tracking-[-0.035em] text-slate-900`;
 
 const starPath = "m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z";
 
@@ -41,7 +43,7 @@ export default function HomeSections() {
             <path transform="translate(73 4)" d={starPath} />
             <path transform="translate(96 4)" d={starPath} />
           </svg>
-          <h1 id="reviews-heading" className={`${reviewTitleFont.className} text-[clamp(1.75rem,4vw,2.5rem)] leading-tight tracking-[-0.035em] text-slate-900`}>
+          <h1 id="reviews-heading" className={homeTitleClassName}>
             베스트 수강평
           </h1>
         </div>

@@ -1,23 +1,18 @@
 import { Nanum_Myeongjo } from "next/font/google";
 import Image from "next/image";
-import Link from "next/link";
 import ReviewCarousel from "./ReviewCarousel";
-import InquiryForm from "../inquiries/InquiryForm";
 
 const reviewTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
 
 const starPath = "m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z";
 
-const sectionClass =
-  "w-full scroll-mt-64 rounded-2xl border border-slate-300 bg-white px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36";
-
 export default function HomeSections() {
   return (
-    <div className="grid w-full px-4 pb-6 sm:px-6 lg:px-8">
+    <>
       <section
         id="academy"
         aria-label="학원소개"
-        className="relative -mx-4 overflow-hidden scroll-mt-64 sm:-mx-6 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36"
+        className="relative overflow-hidden scroll-mt-64 md:scroll-mt-44 lg:scroll-mt-36"
       >
         <Image
           src="/J-academy1.png"
@@ -37,7 +32,7 @@ export default function HomeSections() {
         />
       </section>
 
-      <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-b border-slate-200 bg-white pb-10 pt-12 sm:pt-16 -mx-4 sm:-mx-6 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36">
+      <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-b border-slate-200 bg-white pb-10 pt-12 sm:pt-16 md:scroll-mt-44 lg:scroll-mt-36">
         <div className="px-4 text-center">
           <svg aria-hidden="true" viewBox="0 0 112 24" className="mx-auto mb-4 h-6 w-28 fill-amber-500 sm:mb-5">
             <path transform="translate(0 4)" d={starPath} />
@@ -52,28 +47,6 @@ export default function HomeSections() {
         </div>
         <ReviewCarousel />
       </section>
-
-      <section
-        id="inquiries"
-        aria-labelledby="inquiries-heading"
-        className="-mx-4 scroll-mt-64 bg-slate-100 px-5 py-12 sm:-mx-6 sm:px-8 sm:py-16 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36"
-      >
-        <div className="mx-auto w-full max-w-4xl">
-          <h2 id="inquiries-heading" className="mb-8 text-center font-sans text-3xl font-semibold leading-tight tracking-[-0.055em] text-slate-900 sm:mb-10 sm:text-4xl">
-            문의하기
-          </h2>
-          <InquiryForm />
-        </div>
-      </section>
-
-      <section id="notice" aria-labelledby="notice-heading" className={"mt-5 " + sectionClass}>
-        <h2 id="notice-heading" className="text-2xl font-bold tracking-tight text-slate-900">
-          공지·이벤트
-        </h2>
-        <Link href="/notice" className="mt-4 inline-block font-semibold text-blue-700 hover:underline">
-          공지·이벤트 전체 보기
-        </Link>
-      </section>
-    </div>
+    </>
   );
 }

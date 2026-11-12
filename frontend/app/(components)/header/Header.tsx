@@ -44,7 +44,7 @@ function HeaderIcon({ name, small = false }: { name: keyof typeof paths; small?:
   );
 }
 
-const academyLink = { href: "/", label: "학원소개", icon: "academy" } as const;
+const academyLink = { href: "/#academy", label: "학원소개", icon: "academy" } as const;
 
 const navClass = "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1 py-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 xl:text-base";
 const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
@@ -256,9 +256,9 @@ export default function Header() {
         { href: "/member_list", label: "회원 목록", icon: "user" },
       ] as const
     : [
-        { href: "/reviews", label: "수강평", icon: "star" },
+        { href: "/#reviews", label: "수강평", icon: "star" },
         { href: "/inquiries", label: "문의 사항", icon: "chat" },
-        { href: "/notice", label: "공지·이벤트", icon: "notice" },
+        { href: "/#notice", label: "공지·이벤트", icon: "notice" },
       ] as const;
 
   return (

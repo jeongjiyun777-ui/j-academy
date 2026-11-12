@@ -80,6 +80,13 @@ In the `Mem:` row of `free -h`, `available` estimates how much memory new worklo
 
 In `vmstat`, `si` and `so` show the rates of data moving from swap to RAM and from RAM to swap, respectively. In the next Locust test, I plan to check whether API response times rise when available memory falls and swap activity persists.
 
+## Course payment design and learning — 2026-11-12
+
+- **Current work** — I wrote the PostgreSQL schema for courses and orders. Prices are KRW 120,000 for basic, 150,000 for intermediate, and 180,000 for advanced. Orders are designed to store the price at creation and start in a pending-payment state. [SQL schema](db/courses_orders.sql)
+- **Idempotency from first principles** — If the frontend sends the same payment request ten times, only one payment should be processed. Retries for the same payment attempt use the same idempotency key. The server returns the stored result after success. I plan to return an in-progress response while processing and reject reuse of the key with a different payload as a conflict.
+- **Next implementation** — I plan to create orders in Spring Boot using the database price and start with simulated payments. A database unique constraint and transaction will let only one concurrent request claim an attempt. When integrating a payment provider, I plan to use its idempotency keys and payment status lookup where supported.
+- **Locust validation plan** — Send ten concurrent requests with the same key in a test environment and verify that the database records one payment. Generate load across distinct orders as well and track p95 latency, error rate, throughput, database lock waits, and connection pool usage. I plan to tune timeouts and concurrency limits based on the measurements. The payment API and payment load measurements are planned.
+
 ## Scope and next improvements
 
 This is a learning/portfolio service: use test data instead of real personal information. The guidance screen returns prepared responses rather than calling an external AI model. Matching registration details is not phone identity verification; password recovery needs an additional one-time verification mechanism. The free backend may take time to wake up, and accepting an email request does not guarantee inbox delivery. Production use requires stronger account recovery, request limits, and device testing.

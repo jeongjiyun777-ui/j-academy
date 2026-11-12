@@ -28,10 +28,7 @@ export default function InquiryPage() {
           </p>
         </div>
 
-        <section className="w-full max-w-3xl rounded-2xl border border-slate-200/60 bg-white p-6 shadow-xl shadow-slate-200/40 md:p-10">
-          <InquiryForm />
-
-        </section>
+        <InquiryForm className="max-w-3xl" />
 
         <div className="mt-6 w-full max-w-3xl pl-2">
           <Link

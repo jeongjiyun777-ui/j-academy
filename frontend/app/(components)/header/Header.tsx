@@ -249,6 +249,8 @@ export default function Header() {
     loadMyApplications();
   }, [canAccessLessons]);
 
+  const paymentNotice = canAccessLessons ? "수강결제는 준비 중입니다." : undefined;
+
   const links = canAccessAdmin
     ? [
         { href: "/admin", label: "수강 신청 목록", icon: "list" },
@@ -262,7 +264,7 @@ export default function Header() {
       ] as const;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-300 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full shrink-0 border-b border-slate-300 bg-white shadow-sm">
       <div className="w-full border-b border-slate-800 bg-slate-900 px-4 py-2 text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px]">
           <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center tracking-tight text-slate-200">
@@ -286,13 +288,8 @@ export default function Header() {
         <div className="mx-auto flex min-h-[60px] max-w-[1440px] items-center justify-between gap-2.5 px-4 md:min-h-20 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-3 lg:px-7">
           <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Image src="/j-academy-logo-web.png" alt="" width={36} height={36} className="size-9 shrink-0 object-contain" priority />
-            <span className="flex flex-col whitespace-nowrap">
-              <span className="text-[17px] leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[19px]">
-                제이 외국어
-              </span>
-              <span className="mt-0.5 text-[12px] leading-none font-medium tracking-tight bg-linear-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
-                온라인 학원
-              </span>
+            <span className="whitespace-nowrap text-[17px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[19px]">
+              j-academy
             </span>
           </Link>
 
@@ -345,69 +342,73 @@ export default function Header() {
             ))}
           </nav>
 
-          {!isLoggedIn ? (
-            <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-1 sm:gap-3">
+            {!canAccessAdmin && (
               <button
                 type="button"
-                onClick={() => window.alert("로그인이 필요한 서비스입니다.")}
-                className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:from-sky-600 hover:to-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:px-3.5"
+                onClick={() => window.alert(paymentNotice ?? "로그인이 필요한 서비스입니다.")}
+                className="flex min-h-11 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:from-sky-600 hover:to-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:px-3.5"
               >
                 <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />
                 <span className="text-[11px] leading-none font-semibold tracking-tight sm:text-xs">수강결제</span>
               </button>
-              <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
-                <HeaderIcon name="login" /> 로그인
-              </Link>
-              <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
-                <HeaderIcon name="signup" /> 회원가입
-              </Link>
-            </div>
-          ) : (
-            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-              {canAccessLessons ? (
-                <details className="group relative min-w-0">
-                  <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+            )}
+            {!isLoggedIn ? (
+              <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+                <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
+                  <HeaderIcon name="login" /> 로그인
+                </Link>
+                <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
+                  <HeaderIcon name="signup" /> 회원가입
+                </Link>
+              </div>
+            ) : (
+              <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                {canAccessLessons ? (
+                  <details className="group relative min-w-0">
+                    <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+                      <HeaderIcon name="user" />
+                      <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
+                      <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
+                      <HeaderIcon name="chevron" small />
+                    </summary>
+                    <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                      {canAccessLessons && (
+                        <>
+                          <Link href="/application" className={accountClass}>수강 신청</Link>
+                          <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
+                          {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
+                          {applications.map((application) => {
+                            const key = `${application.subject}-${application.class_name}`;
+                            if (application.status !== "승인완료") {
+                              return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
+                            }
+                            const lesson = lessonLinkBySubjectAndClass[
+                              application.subject as keyof typeof lessonLinkBySubjectAndClass
+                            ]?.[application.class_name as "A반" | "B반" | "C반"];
+                            return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
+                          })}
+                        </>
+                      )}
+                    </div>
+                  </details>
+                ) : (
+                  <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-700">
                     <HeaderIcon name="user" />
-                    <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
-                    <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
-                    <HeaderIcon name="chevron" small />
-                  </summary>
-                  <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
-                    {canAccessLessons && (
-                      <>
-                        <Link href="/application" className={accountClass}>수강 신청</Link>
-                        <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
-                        {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
-                        {applications.map((application) => {
-                          const key = `${application.subject}-${application.class_name}`;
-                          if (application.status !== "승인완료") {
-                            return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
-                          }
-                          const lesson = lessonLinkBySubjectAndClass[
-                            application.subject as keyof typeof lessonLinkBySubjectAndClass
-                          ]?.[application.class_name as "A반" | "B반" | "C반"];
-                          return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
-                        })}
-                      </>
-                    )}
-                  </div>
-                </details>
-              ) : (
-                <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-700">
-                  <HeaderIcon name="user" />
-                  <span className="truncate">{userName}</span>
-                  <span className="shrink-0">관리자님</span>
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="shrink-0 whitespace-nowrap rounded-md px-2 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700 md:text-sm"
-              >
-                로그아웃
-              </button>
-            </div>
-          )}
+                    <span className="truncate">{userName}</span>
+                    <span className="shrink-0">관리자님</span>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="shrink-0 whitespace-nowrap rounded-md px-2 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700 md:text-sm"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <nav aria-label="모바일 주 메뉴" className={`grid gap-1.5 border-t border-slate-100 px-3 py-2 md:hidden ${canAccessAdmin ? "grid-cols-3" : "grid-cols-4"}`}>

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Chatbot from "./(components)/chatbot/chatbot";
 import Footer from "./(components)/footer/footer";
+import Header from "./(components)/header/Header";
 import RefreshSession from "./(components)/auth/refresh-session";
 
 const geistSans = Geist({
@@ -39,6 +40,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-screen flex-col">
         <RefreshSession />
+        <Header />
         <div className="flex-1">{children}</div>
 
         <Footer />

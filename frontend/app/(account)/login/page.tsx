@@ -69,6 +69,12 @@ export default function Home() {
       })
     );
 
+    window.dispatchEvent(
+      new CustomEvent("auth-session-restored", {
+        detail: { name: data.user.name, role: data.user.role },
+      })
+    );
+
     setPassword("");
     router.replace("/");
   } else {

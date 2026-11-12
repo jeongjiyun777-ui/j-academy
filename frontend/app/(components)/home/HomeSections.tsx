@@ -32,15 +32,18 @@ export default function HomeSections() {
       </section>
 
       <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-y border-slate-200 bg-white py-10 -mx-4 sm:-mx-6 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36">
-        <h2 id="reviews-heading" className="flex items-center justify-center gap-3 text-[clamp(1.75rem,4vw,2.5rem)] font-semibold leading-tight tracking-[-0.05em] text-slate-900">
-          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-sky-50 text-blue-600 ring-1 ring-inset ring-sky-100">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="size-5">
-              <path d="M7 17.5 4 20v-5.2A7 7 0 0 1 4 6.5C5.8 4.8 8.4 4 12 4c5.1 0 8 2.6 8 6.5S17.1 17 12 17H8.5L7 17.5Z" />
-              <path d="M8 9h8m-8 3h5" />
-            </svg>
-          </span>
-          수강평
-        </h2>
+        <div className="text-center">
+          <svg aria-hidden="true" viewBox="0 0 112 40" className="mx-auto mb-2 h-9 w-28 fill-amber-500">
+            <path transform="translate(2 16)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
+            <path transform="translate(25 7)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
+            <path transform="translate(46 0) scale(1.25)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
+            <path transform="translate(71 7)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
+            <path transform="translate(94 16)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
+          </svg>
+          <h2 id="reviews-heading" className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-6 py-2.5 text-[clamp(1.375rem,3.5vw,2rem)] font-semibold leading-tight tracking-[-0.045em] text-slate-900 sm:px-8 sm:py-3">
+            베스트 수강평
+          </h2>
+        </div>
         <ReviewCarousel />
       </section>
 

@@ -46,7 +46,7 @@ function HeaderIcon({ name, small = false }: { name: keyof typeof paths; small?:
 
 const academyLink = { href: "/", label: "학원소개", icon: "academy" } as const;
 
-const navClass = "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-1 py-2 text-base font-semibold text-slate-700 hover:text-blue-700 lg:text-lg xl:text-xl";
+const navClass = "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1 py-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 xl:text-base";
 const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
 
 export default function Header() {
@@ -262,141 +262,144 @@ export default function Header() {
       ] as const;
 
   return (
-    <header className="relative z-50 -mx-6 -mt-6 mb-6 border-b border-slate-200 bg-white shadow-sm md:sticky md:top-0">
-      <div className="mx-auto flex min-h-16 max-w-[1440px] items-center justify-between gap-3 px-4 md:min-h-24 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-4 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-md md:gap-3">
-          <Image src="/j-academy-logo-web.png" alt="" width={40} height={40} className="size-8 object-contain md:size-10" priority />
-          <span className="flex flex-col gap-1 whitespace-nowrap">
-            <span className="text-lg leading-none font-semibold tracking-tight text-slate-900 md:text-xl">
-              제이<span className="text-blue-700">온라인</span>
+    <header className="sticky top-0 z-50 -mx-6 -mt-6 mb-6 bg-white shadow-sm">
+      <div aria-hidden="true" className="h-6 border-b border-slate-200 bg-slate-50 sm:h-7" />
+      <div className="relative w-full border-b border-slate-200">
+        <div className="mx-auto flex min-h-[60px] max-w-[1440px] items-center justify-between gap-2.5 px-4 md:min-h-20 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-3 lg:px-7">
+          <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <Image src="/j-academy-logo-web.png" alt="" width={36} height={36} className="size-9 shrink-0 object-contain" priority />
+            <span className="flex flex-col whitespace-nowrap">
+              <span className="text-[17px] leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[19px]">
+                제이 외국어
+              </span>
+              <span className="mt-0.5 text-[12px] leading-none font-medium tracking-tight text-emerald-600">
+                온라인 학원
+              </span>
             </span>
-            <span className="text-[11px] leading-none font-medium tracking-wide text-slate-500">
-              외국어 학원
-            </span>
-          </span>
-        </Link>
+          </Link>
 
-        <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:order-last md:flex md:basis-full lg:order-none lg:basis-auto lg:gap-3 xl:gap-7">
-          {!canAccessAdmin && (
-            <div
-              className="flex min-h-12 items-center lg:min-h-24"
-              onMouseEnter={() => setSubjectsOpen(true)}
-              onMouseLeave={(event) => {
-                if (!event.currentTarget.contains(document.activeElement)) setSubjectsOpen(false);
-              }}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setSubjectsOpen(false);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Escape" && subjectsOpen) {
-                  setSubjectsOpen(false);
-                  event.currentTarget.querySelector("button")?.focus();
-                }
-              }}
-            >
-              <button
-                type="button"
-                aria-expanded={subjectsOpen}
-                aria-controls="desktop-subject-menu"
-                className={navClass}
-                onClick={() => setSubjectsOpen((open) => !open)}
+          <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:order-last md:flex md:basis-full lg:order-none lg:basis-auto lg:gap-2.5 xl:gap-5">
+            {!canAccessAdmin && (
+              <Link href={academyLink.href} className={navClass}>
+                <HeaderIcon name={academyLink.icon} />{academyLink.label}
+              </Link>
+            )}
+            {!canAccessAdmin && (
+              <div
+                className="flex min-h-11 items-center lg:min-h-20"
+                onMouseEnter={() => setSubjectsOpen(true)}
+                onMouseLeave={(event) => {
+                  if (!event.currentTarget.contains(document.activeElement)) setSubjectsOpen(false);
+                }}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) setSubjectsOpen(false);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && subjectsOpen) {
+                    setSubjectsOpen(false);
+                    event.currentTarget.querySelector("button")?.focus();
+                  }
+                }}
               >
-                <HeaderIcon name="book" /> 강사진 소개 <HeaderIcon name="chevron" small />
-              </button>
-              <div id="desktop-subject-menu" hidden={!subjectsOpen} className="absolute inset-x-0 top-full border-y border-slate-200 bg-white px-6 py-4 shadow-md">
-                <div className="mx-auto grid max-w-2xl grid-cols-4 gap-3">
-                  {subjects.map(({ href, label, icon }) => (
-                    <Link key={href} href={href} onClick={() => setSubjectsOpen(false)} className="flex flex-col items-center gap-2 rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-700">
-                      <span className="grid size-11 place-items-center rounded-xl bg-blue-50 text-blue-700"><HeaderIcon name={icon} /></span>
-                      {label}
-                    </Link>
-                  ))}
+                <button
+                  type="button"
+                  aria-expanded={subjectsOpen}
+                  aria-controls="desktop-subject-menu"
+                  className={navClass}
+                  onClick={() => setSubjectsOpen((open) => !open)}
+                >
+                  <HeaderIcon name="book" /> 강사진 소개 <HeaderIcon name="chevron" small />
+                </button>
+                <div id="desktop-subject-menu" hidden={!subjectsOpen} className="absolute inset-x-0 top-full border-y border-slate-200 bg-white px-6 py-4 shadow-md">
+                  <div className="mx-auto grid max-w-2xl grid-cols-4 gap-3">
+                    {subjects.map(({ href, label, icon }) => (
+                      <Link key={href} href={href} onClick={() => setSubjectsOpen(false)} className="flex flex-col items-center gap-2 rounded-xl p-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-700">
+                        <span className="grid size-11 place-items-center rounded-xl bg-blue-50 text-blue-700"><HeaderIcon name={icon} /></span>
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
+            )}
+            {links.map(({ href, label, icon }) => (
+              <Link key={href} href={href} className={navClass}><HeaderIcon name={icon} />{label}</Link>
+            ))}
+          </nav>
+
+          {!isLoggedIn ? (
+            <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => window.alert("로그인이 필요한 서비스입니다.")}
+                className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-emerald-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 sm:px-3.5"
+              >
+                <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />
+                <span className="text-[11px] leading-none font-semibold tracking-tight sm:text-xs">수강결제</span>
+              </button>
+              <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
+                <HeaderIcon name="login" /> 로그인
+              </Link>
+              <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
+                <HeaderIcon name="signup" /> 회원가입
+              </Link>
+            </div>
+          ) : (
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              {canAccessLessons ? (
+                <details className="group relative min-w-0">
+                  <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+                    <HeaderIcon name="user" />
+                    <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
+                    <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
+                    <HeaderIcon name="chevron" small />
+                  </summary>
+                  <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                    {canAccessLessons && (
+                      <>
+                        <Link href="/application" className={accountClass}>수강 신청</Link>
+                        <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
+                        {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
+                        {applications.map((application) => {
+                          const key = `${application.subject}-${application.class_name}`;
+                          if (application.status !== "승인완료") {
+                            return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
+                          }
+                          const lesson = lessonLinkBySubjectAndClass[
+                            application.subject as keyof typeof lessonLinkBySubjectAndClass
+                          ]?.[application.class_name as "A반" | "B반" | "C반"];
+                          return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
+                        })}
+                      </>
+                    )}
+                  </div>
+                </details>
+              ) : (
+                <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-700">
+                  <HeaderIcon name="user" />
+                  <span className="truncate">{userName}</span>
+                  <span className="shrink-0">관리자님</span>
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="shrink-0 whitespace-nowrap rounded-md px-2 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700 md:text-sm"
+              >
+                로그아웃
+              </button>
             </div>
           )}
-          {links.map(({ href, label, icon }) => (
-            <Link key={href} href={href} className={navClass}><HeaderIcon name={icon} />{label}</Link>
+        </div>
+
+        <nav aria-label="모바일 주 메뉴" className={`grid gap-1.5 border-t border-slate-100 px-3 py-2 md:hidden ${canAccessAdmin ? "grid-cols-3" : "grid-cols-4"}`}>
+          {(canAccessAdmin ? links : [academyLink, ...subjects, ...links]).map(({ href, label, icon }) => (
+            <Link key={href} href={href} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg bg-slate-50 px-1.5 py-1.5 text-center text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
+              <HeaderIcon name={icon} small />{label}
+            </Link>
           ))}
         </nav>
-
-        {!isLoggedIn ? (
-          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => window.alert("로그인이 필요한 서비스입니다.")}
-              className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-emerald-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 sm:px-3.5"
-            >
-              <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />
-              <span className="text-[11px] leading-none font-semibold tracking-tight sm:text-xs">수강결제</span>
-            </button>
-            <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
-              <HeaderIcon name="login" /> 로그인
-            </Link>
-            <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-700 sm:px-2 md:text-sm">
-              <HeaderIcon name="signup" /> 회원가입
-            </Link>
-          </div>
-        ) : (
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          {!canAccessAdmin && (
-            <Link href={academyLink.href} className={navClass}>
-              <HeaderIcon name={academyLink.icon} />{academyLink.label}
-            </Link>
-          )}
-            {canAccessLessons ? (
-              <details className="group relative min-w-0">
-                <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
-                  <HeaderIcon name="user" />
-                  <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
-                  <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
-                  <HeaderIcon name="chevron" small />
-                </summary>
-                <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
-                  {canAccessLessons && (
-                    <>
-                      <Link href="/application" className={accountClass}>수강 신청</Link>
-                      <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
-                      {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
-                      {applications.map((application) => {
-                        const key = `${application.subject}-${application.class_name}`;
-                        if (application.status !== "승인완료") {
-                          return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
-                        }
-                        const lesson = lessonLinkBySubjectAndClass[
-                          application.subject as keyof typeof lessonLinkBySubjectAndClass
-                        ]?.[application.class_name as "A반" | "B반" | "C반"];
-                        return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
-                      })}
-                    </>
-                  )}
-                </div>
-              </details>
-            ) : (
-              <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-700">
-                <HeaderIcon name="user" />
-                <span className="truncate">{userName}</span>
-                <span className="shrink-0">관리자님</span>
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="shrink-0 whitespace-nowrap rounded-md px-2 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700 md:text-sm"
-            >
-              로그아웃
-            </button>
-          </div>
-        )}
       </div>
-
-      <nav aria-label="모바일 주 메뉴" className={`grid gap-1.5 border-t border-slate-100 px-3 py-3 md:hidden ${canAccessAdmin ? "grid-cols-3" : "grid-cols-4"}`}>
-        {(canAccessAdmin ? links : [academyLink, ...subjects, ...links]).map(({ href, label, icon }) => (
-          <Link key={href} href={href} className="flex min-h-14 flex-col items-center justify-center gap-1.5 rounded-lg bg-slate-50 px-1.5 py-2 text-center text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
-            <HeaderIcon name={icon} small />{label}
-          </Link>
-        ))}
-      </nav>
     </header>
   );
 }

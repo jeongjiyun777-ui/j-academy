@@ -11,12 +11,42 @@ type LessonApplication = {
 };
 
 
+const subjects = [
+  { href: "/teacher_english", label: "영어", icon: "globe" },
+  { href: "/teacher_spanish", label: "스페인어", icon: "language" },
+  { href: "/teacher_japanese", label: "일본어", icon: "book" },
+  { href: "/teacher_chinese", label: "중국어", icon: "chat" },
+] as const;
+
+const paths = {
+  globe: "M2 12h20M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 0a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z",
+  language: "M3 5h12M9 3v2m4 0c0 6-4 10-9 12m1-9c1 4 4 7 8 9m1 4 4-9 4 9m-6-3h4",
+  book: "M12 7c-2-2-5-3-9-3v14c4 0 7 1 9 3 2-2 5-3 9-3V4c-4 0-7 1-9 3Zm0 0v14",
+  chat: "M4 4h16v12H9l-5 4V4Zm4 4h8m-8 4h5",
+  star: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z",
+  list: "M5 4h14v16H5zM8 8h8m-8 4h8m-8 4h5",
+  user: "M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z",
+  login: "M10 7l5 5-5 5m5-5H3m10-8h7v16h-7",
+  chevron: "m6 9 6 6 6-6",
+};
+
+function HeaderIcon({ name, small = false }: { name: keyof typeof paths; small?: boolean }) {
+  return (
+    <svg aria-hidden="true" className={small ? "size-3.5 shrink-0" : "size-5 shrink-0"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+      <path d={paths[name]} />
+    </svg>
+  );
+}
+
+const navClass = "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-1 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700";
+const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
+
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState("");
   const [applications, setApplications] = useState<LessonApplication[]>([]);
-  const [openMenu, setOpenMenu] = useState<"user" | "admin" | null>(null);
+  const [subjectsOpen, setSubjectsOpen] = useState(false);
 
   const canAccessLessons =
     isLoggedIn && userRole === "student";
@@ -211,174 +241,111 @@ export default function Header() {
     loadMyApplications();
   }, [canAccessLessons]);
 
+  const links = canAccessAdmin
+    ? [
+        { href: "/admin", label: "수강 신청 목록", icon: "list" },
+        { href: "/admin_inquiries", label: "문의 관리", icon: "chat" },
+        { href: "/member_list", label: "회원 목록", icon: "user" },
+      ] as const
+    : [
+        { href: "/reviews", label: "수강평", icon: "star" },
+        { href: "/inquiries", label: "문의 사항", icon: "chat" },
+      ] as const;
+
   return (
-    <header className="mx-auto flex h-14 sm:h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 bg-white rounded-2xl shadow-xs border border-slate-200/80 my-2 sm:my-3">
-      <Link href="/" className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-        <Image
-          src="/j-academy-logo-web.png"
-          alt="제이 외국어 온라인 학원 로고"
-          width={40}
-          height={40}
-          className="h-7 w-7 sm:h-8 sm:w-8 object-contain shrink-0"
-          priority
-        />
-        <span className="text-[14px] sm:text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap">
-          <span className="sm:hidden">제이외국어</span>
-          <span className="hidden sm:inline">제이 외국어 온라인 학원</span>
-        </span>
-      </Link>
-      <nav className="flex shrink-0 items-center gap-3 sm:gap-6">
-        {userRole !== "manager" && (
-          <div className="group relative flex items-center">
-            <button
-              type="button"
-              onClick={() => setOpenMenu((current) => current === "user" ? null : "user")}
-              aria-expanded={openMenu === "user"}
-              className="relative flex items-center gap-1 py-3 text-[13px] font-medium text-slate-600 transition-colors duration-200 hover:text-blue-600 sm:gap-1.5 sm:text-[15px] after:absolute after:bottom-2 after:left-0 after:h-[2px] after:w-full after:origin-bottom-left after:scale-x-0 after:bg-blue-600 after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100"
+    <header className="relative z-50 -mx-6 -mt-6 mb-6 border-b border-slate-200 bg-white shadow-sm md:sticky md:top-0">
+      <div className="mx-auto flex min-h-16 max-w-[1440px] items-center justify-between gap-3 px-4 md:min-h-24 md:px-6 lg:gap-8 lg:px-10">
+        <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-slate-900 md:gap-3 md:text-xl">
+          <Image src="/j-academy-logo-web.png" alt="" width={40} height={40} className="size-8 object-contain md:size-10" priority />
+          제이온라인
+        </Link>
+
+        <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:flex lg:gap-8">
+          {!canAccessAdmin && (
+            <div
+              className="flex min-h-24 items-center"
+              onMouseEnter={() => setSubjectsOpen(true)}
+              onMouseLeave={(event) => {
+                if (!event.currentTarget.contains(document.activeElement)) setSubjectsOpen(false);
+              }}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setSubjectsOpen(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && subjectsOpen) {
+                  setSubjectsOpen(false);
+                  event.currentTarget.querySelector("button")?.focus();
+                }
+              }}
             >
-              {canAccessLessons ? (
-                <span className="flex max-w-[120px] items-center gap-1 sm:max-w-none">
-                  <span className="truncate">{userName}</span>
-                  <span className="shrink-0">회원님</span>
-                </span>
-              ) : (
-                "메뉴"
-              )}
-              <span
-                aria-hidden="true"
-                className="inline-block text-[10px] transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180 sm:text-xs"
-              >
-                ↓
-              </span>
-            </button>
-
-            <div className={`${openMenu === "user" ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"} absolute right-0 top-full z-50 min-w-52 rounded-xl border border-slate-100 bg-white py-2 shadow-xl transition-all md:invisible md:translate-y-2 md:opacity-0 md:group-hover:visible md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100`}>
-              <div className="px-4 py-1.5 text-xs font-bold text-slate-400">
-                담당 선생님
-              </div>
-              <div className="grid grid-cols-2 gap-1 px-3 pb-2">
-                <Link href="/teacher_english" className="rounded bg-slate-50 py-1.5 text-center text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600">영어</Link>
-                <Link href="/teacher_spanish" className="rounded bg-slate-50 py-1.5 text-center text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600">스페인어</Link>
-                <Link href="/teacher_japanese" className="rounded bg-slate-50 py-1.5 text-center text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600">일본어</Link>
-                <Link href="/teacher_chinese" className="rounded bg-slate-50 py-1.5 text-center text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600">중국어</Link>
-              </div>
-
-              <div className="my-1 border-t border-slate-100" />
-              <Link href="/reviews" className="block px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm">수강평</Link>
-              <Link href="/inquiries" className="block px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm">문의 사항</Link>
-
-              {canAccessLessons && (
-                <>
-                  <div className="my-1 border-t border-slate-100" />
-                  <div className="px-4 py-1.5 text-xs font-bold text-slate-400">
-                    {userName} 회원님
-                  </div>
-                  <Link href="/application" className="block px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm">
-                    수강 신청
-                  </Link>
-
-                  <div className="px-4 py-1.5 text-[11px] font-bold text-slate-400">
-                    내 강의
-                  </div>
-                  {applications.length > 0 ? (
-                    <div className="flex flex-col pb-1">
-                      {applications.map((application) => {
-                        const applicationKey = `${application.subject}-${application.class_name}`;
-
-                        if (application.status !== "승인완료") {
-                          return (
-                            <div
-                              key={applicationKey}
-                              className="block whitespace-nowrap bg-amber-50/50 px-4 py-2 text-center text-xs font-medium text-amber-600 sm:text-sm"
-                            >
-                              {application.subject} {application.class_name} (대기중)
-                            </div>
-                          );
-                        }
-
-                        const lesson =
-                          lessonLinkBySubjectAndClass[
-                            application.subject as keyof typeof lessonLinkBySubjectAndClass
-                          ]?.[
-                            application.class_name as "A반" | "B반" | "C반"
-                          ];
-
-                        if (!lesson) return null;
-
-                        return (
-                          <Link
-                            key={applicationKey}
-                            href={lesson.href}
-                            className="block whitespace-nowrap px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm"
-                          >
-                            {lesson.label} ({application.class_name})
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="px-4 py-2 text-xs text-slate-400">
-                      신청한 강의가 없습니다.
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="block w-full whitespace-nowrap border-t border-slate-100 px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm"
-                  >
-                    로그아웃
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {canAccessAdmin ? (
-          <div className="group relative flex items-center">
-            <button
-              type="button"
-              onClick={() => setOpenMenu((current) => current === "admin" ? null : "admin")}
-              aria-expanded={openMenu === "admin"}
-              className="relative flex max-w-[145px] items-center gap-1 py-3 text-[13px] font-medium text-slate-600 transition-colors duration-200 hover:text-blue-600 sm:max-w-none sm:gap-1.5 sm:text-[15px]"
-            >
-              <span className="truncate">{userName} 관리자님</span>
-              <span
-                aria-hidden="true"
-                className="inline-block text-[10px] transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180 sm:text-xs"
-              >
-                ↓
-              </span>
-            </button>
-
-            <div className={`${openMenu === "admin" ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"} absolute right-0 top-full z-50 min-w-52 rounded-xl border border-slate-100 bg-white py-2 shadow-xl transition-all md:invisible md:translate-y-2 md:opacity-0 md:group-hover:visible md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100`}>
-              <Link href="/admin" className="block px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm">
-                수강 신청 목록
-              </Link>
-              <Link href="/admin_inquiries" className="block px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm">
-                문의 사항 엑셀 다운로드
-              </Link>
-              <Link href="/member_list" className="block px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm">
-                회원 목록
-              </Link>
               <button
                 type="button"
-                onClick={handleLogout}
-                className="block w-full whitespace-nowrap border-t border-slate-100 px-4 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-sm"
+                aria-expanded={subjectsOpen}
+                aria-controls="desktop-subject-menu"
+                className={navClass}
+                onClick={() => setSubjectsOpen((open) => !open)}
               >
-                로그아웃
+                <HeaderIcon name="book" /> 과목·선생님 <HeaderIcon name="chevron" small />
               </button>
+              <div id="desktop-subject-menu" hidden={!subjectsOpen} className="absolute inset-x-0 top-full border-y border-slate-200 bg-white px-6 py-4 shadow-md">
+                <div className="mx-auto grid max-w-2xl grid-cols-4 gap-3">
+                  {subjects.map(({ href, label, icon }) => (
+                    <Link key={href} href={href} onClick={() => setSubjectsOpen(false)} className="flex flex-col items-center gap-2 rounded-xl p-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-700">
+                      <span className="grid size-11 place-items-center rounded-xl bg-blue-50 text-blue-700"><HeaderIcon name={icon} /></span>
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        ) : !isLoggedIn ? (
-          <Link
-            href="/login"
-            className="relative flex items-center py-3 text-[13px] font-medium text-slate-600 transition-colors duration-200 hover:text-blue-600 sm:text-[15px]"
-          >
-            로그인
+          )}
+          {links.map(({ href, label, icon }) => (
+            <Link key={href} href={href} className={navClass}><HeaderIcon name={icon} />{label}</Link>
+          ))}
+        </nav>
+
+        {!isLoggedIn ? (
+          <Link href="/login" className="flex shrink-0 flex-col items-center gap-1 rounded-md p-2 text-xs font-semibold text-slate-600 hover:text-blue-700">
+            <HeaderIcon name="login" /> 로그인
           </Link>
-        ) : null}
+        ) : (
+          <details className="group relative min-w-0">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+              <HeaderIcon name="user" />
+              <span className="max-w-24 truncate lg:max-w-36">{userName}</span>
+              <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
+              <HeaderIcon name="chevron" small />
+            </summary>
+            <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+              {canAccessLessons && (
+                <>
+                  <Link href="/application" className={accountClass}>수강 신청</Link>
+                  <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
+                  {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
+                  {applications.map((application) => {
+                    const key = `${application.subject}-${application.class_name}`;
+                    if (application.status !== "승인완료") {
+                      return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
+                    }
+                    const lesson = lessonLinkBySubjectAndClass[
+                      application.subject as keyof typeof lessonLinkBySubjectAndClass
+                    ]?.[application.class_name as "A반" | "B반" | "C반"];
+                    return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
+                  })}
+                </>
+              )}
+              <button type="button" onClick={handleLogout} className={`${accountClass} w-full text-left`}>로그아웃</button>
+            </div>
+          </details>
+        )}
+      </div>
+
+      <nav aria-label="모바일 주 메뉴" className="grid grid-cols-3 gap-1.5 border-t border-slate-100 px-4 py-3 sm:grid-cols-6 md:hidden">
+        {(canAccessAdmin ? links : [...subjects, ...links]).map(({ href, label, icon }) => (
+          <Link key={href} href={href} className="flex min-h-14 flex-col items-center justify-center gap-1.5 rounded-lg bg-slate-50 px-1.5 py-2 text-center text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
+            <HeaderIcon name={icon} small />{label}
+          </Link>
+        ))}
       </nav>
     </header>
   );

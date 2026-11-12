@@ -5,6 +5,8 @@ import ReviewCarousel from "./ReviewCarousel";
 
 const reviewTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
 
+const starPath = "m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z";
+
 const sectionClass =
   "w-full scroll-mt-64 rounded-2xl border border-slate-300 bg-white px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36";
 
@@ -43,17 +45,23 @@ export default function HomeSections() {
       </section>
 
       <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-y border-slate-200 bg-white py-10 -mx-4 sm:-mx-6 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36">
-        <div className="text-center">
-          <svg aria-hidden="true" viewBox="0 0 112 40" className="mx-auto mb-2 h-9 w-28 fill-amber-500">
-            <path transform="translate(2 16)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
-            <path transform="translate(25 7)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
-            <path transform="translate(46 0) scale(1.25)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
-            <path transform="translate(71 7)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
-            <path transform="translate(94 16)" d="m8 0 2.4 5.2 5.6.7-4.1 3.8 1.1 5.6-5-2.8-5 2.8 1.1-5.6L0 5.9l5.6-.7Z" />
+        <div className="px-4 text-center">
+          <svg aria-hidden="true" viewBox="0 0 80 29" className="mx-auto mb-1 h-7 w-20 fill-amber-500">
+            <path transform="translate(3 9)" d={starPath} />
+            <path transform="translate(30 0) scale(1.25)" d={starPath} />
+            <path transform="translate(61 9)" d={starPath} />
           </svg>
-          <h2 id="reviews-heading" className={`${reviewTitleFont.className} px-4 text-[clamp(1.75rem,4vw,2.5rem)] leading-tight tracking-[-0.035em] text-slate-900`}>
-            베스트 수강평
-          </h2>
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5 shrink-0 fill-amber-500 sm:size-4">
+              <path d={starPath} />
+            </svg>
+            <h1 id="reviews-heading" className={`${reviewTitleFont.className} text-[clamp(1.75rem,4vw,2.5rem)] leading-tight tracking-[-0.035em] text-slate-900`}>
+              베스트 수강평
+            </h1>
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5 shrink-0 fill-amber-500 sm:size-4">
+              <path d={starPath} />
+            </svg>
+          </div>
         </div>
         <ReviewCarousel />
       </section>

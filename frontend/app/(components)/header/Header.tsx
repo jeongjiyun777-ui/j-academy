@@ -19,6 +19,8 @@ const subjects = [
 ] as const;
 
 const paths = {
+  academy: "m2 9 10-5 10 5-10 5-10-5Zm4 2v6c3 3 9 3 12 0v-6m4-2v8",
+  notice: "M3 10v4h5l11 5V5L8 10H3Zm5 4 2 6h3l-2-5m10-6v6",
   english: "M3 18 8 6l5 12M5 14h6m5 0c0-2 1-3 3-3s3 1 3 3v4m0-4h-3c-2 0-3 1-3 2s1 2 3 2 3-1 3-2",
   spanish: "M6 20V8l12 12V8M7 5c2-4 5 2 8 0l2-2",
   japanese: "M4 7c4 .4 9 .4 14-.5M11 3c-2 5-3 11-1 16m5-9c-1 4-5 10-9 10-4 0-3-5 1-8 4-3 11-3 13 1 2 4-1 7-6 8",
@@ -40,6 +42,8 @@ function HeaderIcon({ name, small = false }: { name: keyof typeof paths; small?:
     </svg>
   );
 }
+
+const academyLink = { href: "/", label: "학원소개", icon: "academy" } as const;
 
 const navClass = "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-1 py-2 text-base font-semibold text-slate-700 hover:text-blue-700 lg:text-lg xl:text-xl";
 const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
@@ -253,20 +257,21 @@ export default function Header() {
     : [
         { href: "/reviews", label: "수강평", icon: "star" },
         { href: "/inquiries", label: "문의 사항", icon: "chat" },
+        { href: "/notice", label: "공지·이벤트", icon: "notice" },
       ] as const;
 
   return (
     <header className="relative z-50 -mx-6 -mt-6 mb-6 border-b border-slate-200 bg-white shadow-sm md:sticky md:top-0">
-      <div className="mx-auto flex min-h-16 max-w-[1440px] items-center justify-between gap-3 px-4 md:min-h-24 md:px-6 lg:gap-8 lg:px-10">
+      <div className="mx-auto flex min-h-16 max-w-[1440px] items-center justify-between gap-3 px-4 md:min-h-24 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-4 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-slate-900 md:gap-3 md:text-xl">
           <Image src="/j-academy-logo-web.png" alt="" width={40} height={40} className="size-8 object-contain md:size-10" priority />
           제이온라인
         </Link>
 
-        <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:flex lg:gap-8">
+        <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:order-last md:flex md:basis-full lg:order-none lg:basis-auto lg:gap-3 xl:gap-7">
           {!canAccessAdmin && (
             <div
-              className="flex min-h-24 items-center"
+              className="flex min-h-12 items-center lg:min-h-24"
               onMouseEnter={() => setSubjectsOpen(true)}
               onMouseLeave={(event) => {
                 if (!event.currentTarget.contains(document.activeElement)) setSubjectsOpen(false);
@@ -318,6 +323,11 @@ export default function Header() {
           </div>
         ) : (
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          {!canAccessAdmin && (
+            <Link href={academyLink.href} className={navClass}>
+              <HeaderIcon name={academyLink.icon} />{academyLink.label}
+            </Link>
+          )}
             {canAccessLessons ? (
               <details className="group relative min-w-0">
                 <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
@@ -364,8 +374,8 @@ export default function Header() {
         )}
       </div>
 
-      <nav aria-label="모바일 주 메뉴" className="grid grid-cols-3 gap-1.5 border-t border-slate-100 px-4 py-3 sm:grid-cols-6 md:hidden">
-        {(canAccessAdmin ? links : [...subjects, ...links]).map(({ href, label, icon }) => (
+      <nav aria-label="모바일 주 메뉴" className={`grid gap-1.5 border-t border-slate-100 px-3 py-3 md:hidden ${canAccessAdmin ? "grid-cols-3" : "grid-cols-4"}`}>
+        {(canAccessAdmin ? links : [academyLink, ...subjects, ...links]).map(({ href, label, icon }) => (
           <Link key={href} href={href} className="flex min-h-14 flex-col items-center justify-center gap-1.5 rounded-lg bg-slate-50 px-1.5 py-2 text-center text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
             <HeaderIcon name={icon} small />{label}
           </Link>

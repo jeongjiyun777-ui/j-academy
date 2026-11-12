@@ -12,15 +12,18 @@ type LessonApplication = {
 
 
 const subjects = [
-  { href: "/teacher_english", label: "영어", icon: "globe" },
-  { href: "/teacher_spanish", label: "스페인어", icon: "language" },
-  { href: "/teacher_japanese", label: "일본어", icon: "book" },
-  { href: "/teacher_chinese", label: "중국어", icon: "chat" },
+  { href: "/teacher_english", label: "영어", icon: "english" },
+  { href: "/teacher_spanish", label: "스페인어", icon: "spanish" },
+  { href: "/teacher_japanese", label: "일본어", icon: "japanese" },
+  { href: "/teacher_chinese", label: "중국어", icon: "chinese" },
 ] as const;
 
 const paths = {
-  globe: "M2 12h20M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 0a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z",
-  language: "M3 5h12M9 3v2m4 0c0 6-4 10-9 12m1-9c1 4 4 7 8 9m1 4 4-9 4 9m-6-3h4",
+  english: "M3 18 8 6l5 12M5 14h6m5 0c0-2 1-3 3-3s3 1 3 3v4m0-4h-3c-2 0-3 1-3 2s1 2 3 2 3-1 3-2",
+  spanish: "M6 20V8l12 12V8M7 5c2-4 5 2 8 0l2-2",
+  japanese: "M4 7c4 .4 9 .4 14-.5M11 3c-2 5-3 11-1 16m5-9c-1 4-5 10-9 10-4 0-3-5 1-8 4-3 11-3 13 1 2 4-1 7-6 8",
+  chinese: "M4 7h16v10H4zM12 3v19",
+  signup: "M14 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm11 5v6m-3-3h6",
   book: "M12 7c-2-2-5-3-9-3v14c4 0 7 1 9 3 2-2 5-3 9-3V4c-4 0-7 1-9 3Zm0 0v14",
   chat: "M4 4h16v12H9l-5 4V4Zm4 4h8m-8 4h5",
   star: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z",
@@ -38,7 +41,7 @@ function HeaderIcon({ name, small = false }: { name: keyof typeof paths; small?:
   );
 }
 
-const navClass = "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-1 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700";
+const navClass = "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-1 py-2 text-base font-semibold text-slate-700 hover:text-blue-700 lg:text-lg xl:text-xl";
 const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
 
 export default function Header() {
@@ -285,12 +288,12 @@ export default function Header() {
                 className={navClass}
                 onClick={() => setSubjectsOpen((open) => !open)}
               >
-                <HeaderIcon name="book" /> 과목·선생님 <HeaderIcon name="chevron" small />
+                <HeaderIcon name="book" /> 강사진 소개 <HeaderIcon name="chevron" small />
               </button>
               <div id="desktop-subject-menu" hidden={!subjectsOpen} className="absolute inset-x-0 top-full border-y border-slate-200 bg-white px-6 py-4 shadow-md">
                 <div className="mx-auto grid max-w-2xl grid-cols-4 gap-3">
                   {subjects.map(({ href, label, icon }) => (
-                    <Link key={href} href={href} onClick={() => setSubjectsOpen(false)} className="flex flex-col items-center gap-2 rounded-xl p-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-700">
+                    <Link key={href} href={href} onClick={() => setSubjectsOpen(false)} className="flex flex-col items-center gap-2 rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-700">
                       <span className="grid size-11 place-items-center rounded-xl bg-blue-50 text-blue-700"><HeaderIcon name={icon} /></span>
                       {label}
                     </Link>
@@ -305,9 +308,14 @@ export default function Header() {
         </nav>
 
         {!isLoggedIn ? (
-          <Link href="/login" className="flex shrink-0 flex-col items-center gap-1 rounded-md p-2 text-xs font-semibold text-slate-600 hover:text-blue-700">
-            <HeaderIcon name="login" /> 로그인
-          </Link>
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+            <Link href="/login" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md p-2 text-xs font-semibold text-slate-600 hover:text-blue-700 md:text-sm">
+              <HeaderIcon name="login" /> 로그인
+            </Link>
+            <Link href="/register_agree" className="flex flex-col items-center gap-1 whitespace-nowrap rounded-md p-2 text-xs font-semibold text-slate-600 hover:text-blue-700 md:text-sm">
+              <HeaderIcon name="signup" /> 회원가입
+            </Link>
+          </div>
         ) : (
           <details className="group relative min-w-0">
             <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
@@ -342,7 +350,7 @@ export default function Header() {
 
       <nav aria-label="모바일 주 메뉴" className="grid grid-cols-3 gap-1.5 border-t border-slate-100 px-4 py-3 sm:grid-cols-6 md:hidden">
         {(canAccessAdmin ? links : [...subjects, ...links]).map(({ href, label, icon }) => (
-          <Link key={href} href={href} className="flex min-h-14 flex-col items-center justify-center gap-1.5 rounded-lg bg-slate-50 px-1.5 py-2 text-center text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
+          <Link key={href} href={href} className="flex min-h-14 flex-col items-center justify-center gap-1.5 rounded-lg bg-slate-50 px-1.5 py-2 text-center text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
             <HeaderIcon name={icon} small />{label}
           </Link>
         ))}

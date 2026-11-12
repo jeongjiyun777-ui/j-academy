@@ -268,11 +268,11 @@ export default function Header() {
       <div className="w-full border-b border-slate-800 bg-slate-900 px-4 py-2 text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px]">
           <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center tracking-tight text-slate-200">
-            <span className="font-bold text-sky-400">✨ 11/15 마감 임박</span>
+            <span className="font-bold text-sky-400">✨ 12월 25일 마감 임박</span>
             <span aria-hidden="true" className="hidden text-slate-500 sm:inline">|</span>
             <span>
               영어·스페인어·일본어·중국어{" "}
-              <strong className="font-semibold text-white">첫 달 수강료 20% 얼리버드 혜택</strong>
+              <strong className="font-semibold text-white">첫 달 수강료 10% 얼리버드 혜택</strong>
             </span>
           </p>
           <Link

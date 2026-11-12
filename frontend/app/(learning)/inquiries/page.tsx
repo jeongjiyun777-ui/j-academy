@@ -4,7 +4,7 @@ import InquiryForm from "../../(components)/inquiries/InquiryForm";
 
 export default function InquiryPage() {
   return (
-      <main className="relative flex min-h-screen flex-col items-center bg-slate-100 px-4 py-12">
+      <main className="relative flex min-h-screen flex-col items-center bg-white px-4 py-12">
         <div className="mb-10 flex flex-col items-center justify-center gap-3">
           <Link
             href="/"

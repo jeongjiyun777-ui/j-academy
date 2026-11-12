@@ -4,7 +4,7 @@ import InquiryForm from "./(components)/inquiries/InquiryForm";
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-slate-100 pb-6">
+    <main className="min-h-screen w-full bg-white pb-6">
       <HomeSections />
 
       <InquiryForm id="inquiries" className="mx-auto max-w-4xl scroll-mt-64 px-5 py-12 sm:px-8 sm:py-16 md:scroll-mt-44 lg:scroll-mt-36" />

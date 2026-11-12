@@ -135,7 +135,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
             value={name} 
             onChange={handleInquiryInputChange} 
             placeholder="홍길동"
-            className="border-b border-slate-400 bg-transparent px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-0"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
             required
           />
         </div>
@@ -160,7 +160,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
               pattern="[0-9]{3}"
               value={phoneFirst}
               onChange={(event) => setPhoneFirst(event.target.value)}
-              className="min-w-0 flex-1 border-b border-slate-400 bg-transparent px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
               required
             />
 
@@ -178,7 +178,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
               aria-label="전화번호 가운데 자리"
               value={phoneMiddle}
               onChange={(event) => setPhoneMiddle(event.target.value)}
-              className="min-w-0 flex-1 border-b border-slate-400 bg-transparent px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
               required
             />
 
@@ -196,7 +196,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
               aria-label="전화번호 마지막 자리"
               value={phoneLast}
               onChange={(event) => setPhoneLast(event.target.value)}
-              className="min-w-0 flex-1 border-b border-slate-400 bg-transparent px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-2 py-3 text-center text-sm tabular-nums text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
               required
             />
           </div>
@@ -213,7 +213,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
             name="inquiry_type" 
             value={inquiryType} 
             onChange={handleInquiryInputChange} 
-            className="w-full appearance-none border-b border-slate-400 bg-transparent px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-0"
+            className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
             required
           >
             <option value="">문의 유형을 선택해 주세요</option>
@@ -247,7 +247,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
             value={title}
             onChange={handleInquiryInputChange}
             placeholder="문의하실 내용의 제목을 입력해 주세요"
-            className="border-b border-slate-400 bg-transparent px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-0"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
             required
           />
 
@@ -271,7 +271,7 @@ export default function InquiryForm({ id, className = "" }: InquiryFormProps) {
             onChange={handleInquiryInputChange}
             rows={6}
             placeholder="궁금하신 점이나 겪고 계신 문제를 자세히 적어주시면 더욱 정확한 안내가 가능합니다."
-            className="resize-none border-b border-slate-400 bg-transparent px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-0"
+            className="resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
             required
           />
 

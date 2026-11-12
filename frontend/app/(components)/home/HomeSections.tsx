@@ -31,8 +31,8 @@ export default function HomeSections() {
         </svg>
       </section>
 
-      <section id="reviews" aria-labelledby="reviews-heading" className={sectionClass}>
-        <h2 id="reviews-heading" className="text-2xl font-bold tracking-tight text-slate-900">
+      <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-y border-slate-200 bg-white py-10 -mx-4 sm:-mx-6 md:scroll-mt-44 lg:-mx-8 lg:scroll-mt-36">
+        <h2 id="reviews-heading" className="text-center text-2xl font-bold tracking-tight text-slate-900">
           수강평
         </h2>
         <ReviewCarousel />

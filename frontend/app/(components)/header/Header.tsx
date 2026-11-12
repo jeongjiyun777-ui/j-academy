@@ -262,7 +262,7 @@ export default function Header() {
       ] as const;
 
   return (
-    <header className="sticky top-0 z-50 -mx-6 -mt-6 mb-6 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-300 bg-white shadow-sm">
       <div className="w-full border-b border-slate-800 bg-slate-900 px-4 py-2 text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px]">
           <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center tracking-tight text-slate-200">

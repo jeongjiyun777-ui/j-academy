@@ -5,11 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 const sectionClass =
-  "scroll-mt-64 rounded-2xl border border-slate-200 bg-white px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36";
+  "w-full scroll-mt-64 rounded-2xl border border-slate-300 bg-white px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36";
 
 export default function HomeSections() {
   return (
-    <div className="mx-auto grid w-full max-w-7xl gap-6">
+    <div className="grid w-full gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <section
         id="academy"
         aria-label="학원소개"

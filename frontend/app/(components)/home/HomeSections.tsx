@@ -2,6 +2,7 @@ import { Nanum_Myeongjo } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import ReviewCarousel from "./ReviewCarousel";
+import InquiryForm from "../inquiries/InquiryForm";
 
 const reviewTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
 
@@ -50,6 +51,17 @@ export default function HomeSections() {
           </h1>
         </div>
         <ReviewCarousel />
+      </section>
+
+      <section id="inquiries" aria-labelledby="inquiries-heading" className="mt-5 w-full scroll-mt-64 rounded-2xl border border-slate-300 bg-slate-100 px-3 py-8 sm:px-6 sm:py-10 md:scroll-mt-44 lg:scroll-mt-36">
+        <div className="mx-auto max-w-3xl">
+          <h2 id="inquiries-heading" className="text-2xl font-bold tracking-tight text-slate-900">
+            문의사항
+          </h2>
+          <div className="mt-5 rounded-2xl border border-slate-300 bg-white p-4 sm:p-6 lg:p-8">
+            <InquiryForm />
+          </div>
+        </div>
       </section>
 
       <section id="notice" aria-labelledby="notice-heading" className={"mt-5 " + sectionClass}>

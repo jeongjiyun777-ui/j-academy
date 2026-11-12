@@ -259,7 +259,7 @@ export default function Header() {
       ] as const
     : [
         { href: "/#reviews", label: "수강평", icon: "star" },
-        { href: "/inquiries", label: "문의 사항", icon: "chat" },
+        { href: "/#inquiries", label: "문의 사항", icon: "chat" },
         { href: "/#notice", label: "공지·이벤트", icon: "notice" },
       ] as const;
 

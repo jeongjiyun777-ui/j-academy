@@ -7,7 +7,13 @@ export default function Home() {
     <main className="min-h-screen w-full bg-white pb-6">
       <HomeSections />
 
-      <InquiryForm id="inquiries" className="mx-auto max-w-4xl scroll-mt-64 px-5 py-12 sm:px-8 sm:py-16 md:scroll-mt-44 lg:scroll-mt-36" />
+      <h1
+        id="inquiries"
+        className="scroll-mt-64 px-5 pt-12 text-center font-sans text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.15] tracking-[-0.055em] text-slate-900 sm:pt-16 md:scroll-mt-44 lg:scroll-mt-36"
+      >
+        문의사항
+      </h1>
+      <InquiryForm className="mx-auto max-w-4xl px-5 pb-12 pt-8 sm:px-8 sm:pb-16 sm:pt-10" />
 
       <section
         id="notice"

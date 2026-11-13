@@ -3,7 +3,6 @@
 import { sessionFetch } from "../auth/request-refresh";
 
 import Image from "next/image";
-import AcademyBrand from "../header/AcademyBrand";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -317,8 +316,18 @@ export default function Chatbot() {
     <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       {isOpen && (
         <section className="relative mb-3 grid h-[480px] max-h-[82vh] w-[calc(100vw-2rem)] max-w-[360px] grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-xl sm:w-[350px]">
-          <header className="flex items-center gap-2 bg-slate-950 px-3.5 py-3 text-white">
-            <h2><AcademyBrand onDark /></h2>
+          <header className="flex items-center gap-2 bg-blue-600 px-3.5 py-3 text-white">
+            <Image
+              src="/j-academy-logo-chat-header-v2.png"
+              alt="제이 외국어 온라인 학원 로고"
+              width={34}
+              height={34}
+              className="block h-[34px] w-[34px] shrink-0 object-contain"
+            />
+
+            <h2 className="whitespace-nowrap text-sm font-bold">
+              제이 외국어 온라인 학원
+            </h2>
 
             <button
               type="button"
@@ -344,7 +353,7 @@ export default function Chatbot() {
               <div className="grid h-full w-full grid-rows-[auto_1fr_auto_auto] rounded-xl bg-white p-4 shadow-sm">
                 <div className="flex items-center gap-2.5">
                   <Image
-                    src="/j-academy-mark.svg"
+                    src="/j-academy-logo-chat-body.png"
                     alt="제이 학습 도우미 로고"
                     width={34}
                     height={34}
@@ -599,7 +608,7 @@ export default function Chatbot() {
         className="block"
       >
         <Image
-          src="/j-academy-mark.svg"
+          src="/images/chatbot.png"
           alt="챗봇"
           width={76}
           height={76}

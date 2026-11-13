@@ -18,7 +18,7 @@ export default function Home() {
       <section
         id="notice"
         aria-labelledby="notice-heading"
-        className="mx-4 scroll-mt-64 rounded-2xl border border-slate-300 bg-white px-6 py-10 sm:mx-6 sm:px-10 md:scroll-mt-44 lg:mx-8 lg:scroll-mt-36"
+        className="w-full scroll-mt-64 border-y border-slate-300 bg-slate-100 px-6 py-10 sm:px-10 md:scroll-mt-44 lg:scroll-mt-36"
       >
         <h2 id="notice-heading" className="text-2xl font-bold tracking-tight text-slate-900">
           공지·이벤트

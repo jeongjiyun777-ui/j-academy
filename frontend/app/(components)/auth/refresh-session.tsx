@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { requestRefresh } from "./request-refresh";
 
 interface RefreshResponse {
   access_token: string;
@@ -39,12 +40,7 @@ export default function RefreshSession() {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
 
       try {
-        const response = await fetch(`${apiBaseUrl}/refresh`, {
-          method: "POST",
-          cache: "no-store",
-          headers: { "ngrok-skip-browser-warning": "true" },
-          credentials: "include",
-        });
+        const response = await requestRefresh(apiBaseUrl);
 
         if (!response.ok) {
           if (response.status === 401) {

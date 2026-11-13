@@ -3,6 +3,7 @@
 import { CreditCard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type LessonApplication = {
@@ -50,6 +51,7 @@ const navClass = "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md 
 const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
 
 export default function Header() {
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState("");
@@ -249,8 +251,6 @@ export default function Header() {
     loadMyApplications();
   }, [canAccessLessons]);
 
-  const paymentNotice = canAccessLessons ? "수강결제는 준비 중입니다." : undefined;
-
   const links = canAccessAdmin
     ? [
         { href: "/admin", label: "수강 신청 목록", icon: "list" },
@@ -288,7 +288,7 @@ export default function Header() {
         <div className="mx-auto flex min-h-[60px] max-w-[1440px] items-center justify-between gap-2.5 px-4 md:min-h-20 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-3 lg:px-7">
           <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Image src="/j-academy-logo-web.png" alt="" width={36} height={36} className="size-9 shrink-0 object-contain" priority />
-            <span className="whitespace-nowrap text-[17px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[19px]">
+            <span className="whitespace-nowrap bg-linear-to-b from-slate-700 to-slate-950 bg-clip-text text-[17px] font-extrabold leading-tight tracking-[-0.045em] text-transparent drop-shadow-[0_1px_1px_rgba(15,23,42,0.18)] sm:text-[19px]">
               j-academy
             </span>
           </Link>
@@ -346,7 +346,7 @@ export default function Header() {
             {!canAccessAdmin && (
               <button
                 type="button"
-                onClick={() => window.alert(paymentNotice ?? "로그인이 필요한 서비스입니다.")}
+                onClick={() => canAccessLessons ? router.push("/payment") : window.alert("로그인이 필요한 서비스입니다.")}
                 className="flex min-h-11 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:from-sky-600 hover:to-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:px-3.5"
               >
                 <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />

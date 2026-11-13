@@ -1,4 +1,4 @@
-import Image from "next/image";
+import AcademyBrand from "../header/AcademyBrand";
 import Link from "next/link";
 
 export default function Footer() {
@@ -7,27 +7,9 @@ export default function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-12 md:flex-row md:justify-between">
         {/* 왼쪽: 학원 로고 영역 */}
         <section className="shrink-0 md:w-72">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-white p-2">
-              <Image
-                src="/j-academy-logo-web.png"
-                alt="제이 외국어 온라인 학원 로고"
-                width={60}
-                height={60}
-                className="h-14 w-14 object-contain"
-              />
-            </div>
-
-            <div>
-              <h2 className="text-lg font-bold text-white">
-                제이 외국어
-              </h2>
-
-              <p className="text-sm text-slate-400">
-                온라인 학원
-              </p>
-            </div>
-          </div>
+          <Link href="/" className="inline-flex">
+            <AcademyBrand onDark />
+          </Link>
 
           <p className="mt-5 text-sm leading-6 text-slate-400">
             영어·스페인어·일본어·중국어를

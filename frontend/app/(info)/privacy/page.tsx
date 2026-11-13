@@ -6,7 +6,7 @@ export default function PrivacyPage() {
     <main className="min-h-screen bg-slate-100 px-6 py-12">
       <section className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-8 shadow-sm sm:p-12">
         <header className="border-b border-slate-200 pb-8 text-center">
-          <Image src="/j-academy-logo-web.png" alt="제이 외국어 온라인 학원 로고" width={52} height={52} className="mx-auto mb-4" />
+          <Image src="/j-academy-mark.svg" alt="제이 외국어 온라인 학원 로고" width={52} height={52} className="mx-auto mb-4" />
           <p className="text-sm font-semibold text-blue-600">J ACADEMY</p>
           <h1 className="mt-2 text-3xl font-bold text-slate-900">개인정보처리방침</h1>
           <p className="mt-3 text-sm text-slate-500">시행일: 2026년 9월 18일</p>

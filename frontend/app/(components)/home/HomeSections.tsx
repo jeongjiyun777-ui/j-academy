@@ -1,5 +1,5 @@
 import { Nanum_Myeongjo } from "next/font/google";
-import Image from "next/image";
+import AcademyBrand from "../header/AcademyBrand";
 import ReviewCarousel from "./ReviewCarousel";
 
 const homeTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
@@ -16,22 +16,11 @@ export default function HomeSections() {
         aria-label="학원소개"
         className="relative overflow-hidden scroll-mt-64 md:scroll-mt-44 lg:scroll-mt-36"
       >
-        <Image
-          src="/J-academy1.png"
-          alt="J-academy"
-          width={1672}
-          height={941}
-          sizes="100vw"
-          className="block h-auto w-full"
-        />
-        <Image
-          src="/j-academy2.png"
-          alt="J-academy 두 번째 소개 배너"
-          width={1672}
-          height={941}
-          sizes="100vw"
-          className="block h-auto w-full"
-        />
+        <div className="grid w-full place-items-center bg-linear-to-br from-sky-50 via-white to-blue-50 px-6 py-28 sm:py-40">
+          <div className="origin-center scale-150 sm:scale-[2.25]">
+            <AcademyBrand />
+          </div>
+        </div>
       </section>
 
       <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-b border-slate-200 bg-white pb-10 pt-12 sm:pt-16 md:scroll-mt-44 lg:scroll-mt-36">

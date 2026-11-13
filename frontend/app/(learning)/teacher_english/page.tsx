@@ -1,5 +1,6 @@
 'use client';
 
+import AcademyBrand from "../../(components)/header/AcademyBrand";
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -9,18 +10,7 @@ const PageHeader = () => (
     href="/" 
     className="group inline-flex items-center gap-4 transition-opacity hover:opacity-80"
   >
-    <div className="mx-auto max-w-6xl">
-      <Image
-        src="/j-academy-logo-web.png"
-        alt="제이 외국어 온라인 학원 로고"
-        width={48}
-        height={48}
-        priority
-      />
-    </div>
-    <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-      제이 외국어 온라인 학원
-    </h1>
+    <AcademyBrand />
   </Link>
 );
 

@@ -1,7 +1,7 @@
 "use client";
 
+import AcademyBrand from "../../(components)/header/AcademyBrand";
 import { sessionFetch } from "../../(components)/auth/request-refresh";
-import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -59,18 +59,7 @@ async function handleApplication(
           href="/"
           className="mt-3 flex items-center justify-center gap-2 sm:gap-3 transition-opacity hover:opacity-80"
         >
-          <Image
-            src="/j-academy-logo-web.png"
-            alt="제이 외국어 온라인 학원 로고"
-            width={48}
-            height={48}
-            className="h-8 w-8 sm:h-12 sm:w-12 object-contain shrink-0"
-            priority
-          />
-
-          <h1 className="text-xl sm:text-3xl md:text-4xl font-bold leading-tight text-slate-900 whitespace-nowrap">
-            제이 외국어 온라인 학원
-          </h1>
+          <AcademyBrand />
         </Link>
 
         <div className="mx-auto mt-6 w-full max-w-xl rounded-xl bg-white p-8 shadow">

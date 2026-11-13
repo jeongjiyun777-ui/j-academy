@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="badge" x2="1" y2="1">
+      <stop stop-color="#38bdf8"/>
+      <stop offset=".52" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="shine" x2="0" y2="1">
+      <stop stop-color="#fff" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="8" width="58" height="54" rx="14" fill="#1e3a8a"/>
+  <rect x="3" y="3" width="58" height="54" rx="14" fill="url(#badge)"/>
+  <rect x="7" y="6" width="50" height="25" rx="11" fill="url(#shine)"/>
+  <path fill="#fff" d="M35 16h7v19c0 8-4 13-12 13-5 0-9-2-11-6l5-4c2 2 3 3 6 3 3 0 5-2 5-6z"/>
+</svg>

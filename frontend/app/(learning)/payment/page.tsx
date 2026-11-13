@@ -22,6 +22,7 @@ const won = new Intl.NumberFormat("ko-KR");
 
 export default function PaymentPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [subject, setSubject] = useState("");
   const [selectedId, setSelectedId] = useState<number>();
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,9 @@ export default function PaymentPage() {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order>();
   const inFlight = useRef(false);
-  const selected = courses.find((course) => course.id === selectedId);
+  const subjects = [...new Set(courses.map((course) => course.subject))];
+  const visibleCourses = courses.filter((course) => course.subject === subject);
+  const selected = visibleCourses.find((course) => course.id === selectedId);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -89,12 +92,32 @@ export default function PaymentPage() {
         ) : (
           <form onSubmit={createOrder} className="mt-8 space-y-6">
             <fieldset disabled={loading || submitting} className="min-w-0">
-              <legend className="mb-3 font-semibold text-slate-900">강좌 선택</legend>
+              <legend className="mb-3 font-semibold text-slate-900">외국어 선택하기</legend>
               {loading ? (
                 <p role="status" className="text-sm text-slate-600">강좌를 불러오는 중입니다.</p>
-              ) : courses.length > 0 ? (
+              ) : subjects.length > 0 ? (
+                <select
+                  aria-label="외국어 선택하기"
+                  value={subject}
+                  onChange={(event) => {
+                    setSubject(event.target.value);
+                    setSelectedId(undefined);
+                  }}
+                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900"
+                >
+                  <option value="">외국어를 선택해 주세요</option>
+                  {subjects.map((name) => <option key={name} value={name}>{name}</option>)}
+                </select>
+              ) : !error && (
+                <p className="text-sm text-slate-600">현재 신청 가능한 강좌가 없습니다.</p>
+              )}
+            </fieldset>
+
+            {subject && (
+              <fieldset disabled={submitting} className="min-w-0">
+                <legend className="mb-3 font-semibold text-slate-900">단계 및 수강료</legend>
                 <div className="grid max-h-72 gap-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2">
-                  {courses.map((course) => (
+                  {visibleCourses.map((course) => (
                     <label key={course.id} className="flex cursor-pointer items-center gap-3 rounded-lg bg-white px-3 py-3 text-sm text-slate-800 ring-1 ring-slate-200 hover:bg-blue-50 has-checked:ring-blue-600">
                       <input
                         type="radio"
@@ -111,15 +134,13 @@ export default function PaymentPage() {
                     </label>
                   ))}
                 </div>
-              ) : !error && (
-                <p className="text-sm text-slate-600">현재 신청 가능한 강좌가 없습니다.</p>
-              )}
               {selected && (
                 <p className="mt-3 text-sm font-semibold text-slate-800">
                   선택한 수강료 {won.format(selected.priceKrw)}원
                 </p>
               )}
-            </fieldset>
+              </fieldset>
+            )}
             <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
               <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 underline">이용약관 보기</Link>
               <label className="mt-3 flex items-start gap-2">

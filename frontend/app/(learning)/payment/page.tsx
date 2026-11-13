@@ -22,14 +22,14 @@ const won = new Intl.NumberFormat("ko-KR");
 
 export default function PaymentPage() {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState<number>();
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order>();
   const inFlight = useRef(false);
-  const selected = courses.find((course) => String(course.id) === selectedId);
+  const selected = courses.find((course) => course.id === selectedId);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -88,17 +88,38 @@ export default function PaymentPage() {
           </section>
         ) : (
           <form onSubmit={createOrder} className="mt-8 space-y-6">
-            <label className="grid gap-2 font-medium text-slate-800">
-              강좌 선택
-              <select required disabled={loading || submitting} value={selectedId} onChange={(event) => setSelectedId(event.target.value)} className="w-full rounded-xl border border-slate-300 bg-white p-3">
-                <option value="">{loading ? "강좌 불러오는 중" : "강좌를 선택해 주세요"}</option>
-                {courses.map((course) => (
-                  <option key={course.id} value={course.id}>
-                    {course.subject} {levelLabels[course.level] ?? course.level} · {won.format(course.priceKrw)}원
-                  </option>
-                ))}
-              </select>
-            </label>
+            <fieldset disabled={loading || submitting} className="min-w-0">
+              <legend className="mb-3 font-semibold text-slate-900">강좌 선택</legend>
+              {loading ? (
+                <p role="status" className="text-sm text-slate-600">강좌를 불러오는 중입니다.</p>
+              ) : courses.length > 0 ? (
+                <div className="grid max-h-72 gap-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2">
+                  {courses.map((course) => (
+                    <label key={course.id} className="flex cursor-pointer items-center gap-3 rounded-lg bg-white px-3 py-3 text-sm text-slate-800 ring-1 ring-slate-200 hover:bg-blue-50 has-checked:ring-blue-600">
+                      <input
+                        type="radio"
+                        name="course"
+                        checked={selectedId === course.id}
+                        onChange={() => setSelectedId(course.id)}
+                        className="shrink-0 accent-blue-700"
+                        required
+                      />
+                      <span className="min-w-0 flex-1 font-medium">
+                        {course.subject} {levelLabels[course.level] ?? course.level}
+                      </span>
+                      <span className="shrink-0 font-semibold tabular-nums">{won.format(course.priceKrw)}원</span>
+                    </label>
+                  ))}
+                </div>
+              ) : !error && (
+                <p className="text-sm text-slate-600">현재 신청 가능한 강좌가 없습니다.</p>
+              )}
+              {selected && (
+                <p className="mt-3 text-sm font-semibold text-slate-800">
+                  선택한 수강료 {won.format(selected.priceKrw)}원
+                </p>
+              )}
+            </fieldset>
             <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
               <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 underline">이용약관 보기</Link>
               <label className="mt-3 flex items-start gap-2">

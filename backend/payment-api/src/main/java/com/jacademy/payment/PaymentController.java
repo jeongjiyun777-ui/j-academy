@@ -1,7 +1,8 @@
-package com.jacademy.checkout;
+package com.jacademy.payment;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.CacheControl;
@@ -9,8 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
@@ -19,10 +20,13 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-public class CheckoutSessionController {
+public class PaymentController {
     private final RestClient authApi;
+    private final JdbcTemplate jdbcTemplate;
 
-    public CheckoutSessionController(@Value("${academy.auth.base-url}") String authBaseUrl) {
+    public PaymentController(@Value("${academy.auth.base-url}") String authBaseUrl,
+            JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
         var httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(3))
                 .build();
@@ -78,4 +82,21 @@ public class CheckoutSessionController {
     public record AuthResponse(SessionUser user) {}
 
     public record SessionUser(long id, String role) {}
+
+    @GetMapping("/checkout/courses")
+    public List<Course> getCourses() {
+        return jdbcTemplate.query("""
+                SELECT id, subject, level, price_krw
+                FROM public.courses
+                ORDER BY id
+                """,
+                (row, index) -> new Course(
+                        row.getLong("id"),
+                        row.getString("subject"),
+                        row.getString("level"),
+                        row.getInt("price_krw")
+                ));
+    }
+
+    public record Course(long id, String subject, String level, int priceKrw) {}
 }

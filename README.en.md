@@ -95,7 +95,7 @@ In `vmstat`, `si` and `so` show the rates of data moving from swap to RAM and fr
 - **What I verified** — Calling the local Java server from PowerShell without a token returned `401` and `WWW-Authenticate: Bearer`. A separate test with a stub auth service verified `200` for a student, `403` for a manager, and `401` for missing or invalid tokens.
 - **Next exercise** — I plan to call FastAPI `POST /refresh` with a real HttpOnly cookie, pass the issued access token to Java from memory, and verify the returned student ID. After that, I will read course prices from the database and save pending-payment orders.
 
-[Spring Boot authentication code](payment-api/src/main/java/com/jacademy/checkout)
+[Spring Boot authentication code](backend/payment-api/src/main/java/com/jacademy/payment)
 
 ### Course prices and order design
 
@@ -104,7 +104,20 @@ In `vmstat`, `si` and `so` show the rates of data moving from swap to RAM and fr
 - **Database configuration** — For local development, the existing Python backend `.env` supplies the database settings through Spring Boot environment variables.
 - **Next step** — Verify the student's role, use the submitted `courseId` to read the price from the database, and store that amount in a pending-payment order. Simulated payments and idempotency verification will follow.
 
-[Course lookup code](payment-api/src/main/java/com/jacademy/checkout/CourseController.java)
+[Course lookup code](backend/payment-api/src/main/java/com/jacademy/payment/PaymentController.java)
+
+#### Local run
+
+The launcher reuses the existing FastAPI `.env`. Use `--env-file` if the file is outside the default `backend/config/.env` path.
+
+```powershell
+python backend/payment-api/run.py
+```
+
+```powershell
+curl.exe -i http://localhost:8080/checkout/courses
+```
+
 
 ## Scope and next improvements
 

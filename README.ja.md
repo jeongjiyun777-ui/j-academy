@@ -95,7 +95,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 - **確認した結果** — PowerShellからローカルのJavaサーバーをトークンなしで呼び出し、`401`と`WWW-Authenticate: Bearer`を確認しました。スタブの認証サービスを使った別のテストでは、受講者`200`、管理者`403`、トークンなし・無効`401`を確認しました。
 - **次の実習** — 実際のHttpOnly Cookieを使ってFastAPIの`POST /refresh`を呼び出し、発行されたアクセストークンをメモリからJavaに渡して受講者IDを確認する予定です。その後、DBから受講料を読み取り、決済待ちの注文を保存する機能を追加します。
 
-[Spring Boot認証コード](payment-api/src/main/java/com/jacademy/checkout)
+[Spring Boot認証コード](backend/payment-api/src/main/java/com/jacademy/payment)
 
 ### 受講料の取得と注文設計
 
@@ -104,7 +104,20 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 - **DB設定** — ローカルでは既存のPythonバックエンドの`.env`からDB接続設定を読み取り、Spring Bootの環境変数に渡します。
 - **次の段階** — 受講者の権限を確認し、受け取った`courseId`を使ってDBから受講料を取得し、決済待ちの注文に金額を保存する予定です。その後、模擬決済と冪等性の検証を追加します。
 
-[講座取得コード](payment-api/src/main/java/com/jacademy/checkout/CourseController.java)
+[講座取得コード](backend/payment-api/src/main/java/com/jacademy/payment/PaymentController.java)
+
+#### ローカル起動
+
+既存のFastAPIの `.env` を再利用します。既定の `backend/config/.env` 以外にある場合は `--env-file` で指定します。
+
+```powershell
+python backend/payment-api/run.py
+```
+
+```powershell
+curl.exe -i http://localhost:8080/checkout/courses
+```
+
 
 ## 対象範囲と今後の改善
 

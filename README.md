@@ -95,7 +95,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 - **직접 확인한 결과** — PowerShell에서 로컬 Java 서버를 토큰 없이 호출해 `401`과 `WWW-Authenticate: Bearer`를 확인했습니다. 임시 인증 서버를 사용한 별도 테스트에서는 학생 `200`, 관리자 `403`, 누락·오류 토큰 `401`을 검증했습니다.
 - **다음 실습** — 실제 HttpOnly 쿠키로 FastAPI `POST /refresh`를 호출하고, 발급된 액세스 토큰을 메모리에서 Java에 전달해 학생 ID가 돌아오는지 확인할 예정입니다. 이후 DB에서 수강료를 읽고 결제 대기 주문을 저장하는 기능을 붙일 계획입니다.
 
-[Spring Boot 인증 코드](payment-api/src/main/java/com/jacademy/checkout)
+[Spring Boot 인증 코드](backend/payment-api/src/main/java/com/jacademy/payment)
 
 ### 강좌 가격 조회와 주문 설계
 
@@ -104,7 +104,20 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 - **DB 설정** — 로컬에서는 기존 Python 백엔드의 `.env`에서 DB 접속값을 읽어 Spring Boot 환경 변수로 전달합니다.
 - **다음 단계** — 학생 권한을 확인한 뒤, 받은 `courseId`로 DB 가격을 읽어 `결제대기` 주문에 금액을 저장할 계획입니다. 이후 모의 결제와 멱등성 검증을 붙입니다.
 
-[강좌 조회 코드](payment-api/src/main/java/com/jacademy/checkout/CourseController.java)
+[강좌 조회 코드](backend/payment-api/src/main/java/com/jacademy/payment/PaymentController.java)
+
+#### 로컬 실행
+
+기존 FastAPI의 `.env`를 재사용합니다. `--env-file`은 설정 파일이 기본 위치(`backend/config/.env`)와 다를 때 지정합니다.
+
+```powershell
+python backend/payment-api/run.py
+```
+
+```powershell
+curl.exe -i http://localhost:8080/checkout/courses
+```
+
 
 ## 범위와 남은 개선
 

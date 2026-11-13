@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
@@ -97,6 +99,48 @@ public class PaymentController {
                         row.getInt("price_krw")
                 ));
     }
+
+    @PostMapping("/checkout/orders")
+    public ResponseEntity<PendingOrder> createOrder(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestBody OrderRequest request) {
+        var session = checkSession(authorization);
+        var student = session.getBody();
+        if (student == null) {
+            return ResponseEntity.status(session.getStatusCode()).headers(session.getHeaders()).build();
+        }
+        if (request.courseId() == null || request.courseId() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A positive courseId is required");
+        }
+
+        var orders = jdbcTemplate.query("""
+                INSERT INTO public.orders (student_id, course_id, amount_krw)
+                SELECT student.id, course.id, course.price_krw
+                FROM public.students AS student
+                CROSS JOIN public.courses AS course
+                WHERE student.id = ? AND course.id = ?
+                FOR KEY SHARE OF student, course
+                RETURNING id, course_id, amount_krw, status
+                """,
+                (row, index) -> new PendingOrder(
+                        row.getLong("id"),
+                        row.getLong("course_id"),
+                        row.getInt("amount_krw"),
+                        row.getString("status")
+                ),
+                student.id(), request.courseId());
+
+        if (orders.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student or course not found");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .cacheControl(CacheControl.noStore())
+                .body(orders.getFirst());
+    }
+
+    public record OrderRequest(Long courseId) {}
+
+    public record PendingOrder(long orderId, long courseId, int amountKrw, String status) {}
 
     public record Course(long id, String subject, String level, int priceKrw) {}
 }

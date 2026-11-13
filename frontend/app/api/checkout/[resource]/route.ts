@@ -2,9 +2,12 @@ const paymentApi = process.env.PAYMENT_API_BASE_URL ?? "http://127.0.0.1:8080";
 
 async function forward(resource: string, request: Request) {
   const headers = new Headers();
-  const authorization = request.headers.get("authorization");
-  if (authorization) headers.set("Authorization", authorization);
+  const cookie = request.headers.get("cookie")?.split(/;\s*/).find((part) => part.startsWith("access_token="));
+  if (cookie) headers.set("Cookie", cookie);
   const isOrder = resource === "orders";
+  if (isOrder && request.headers.get("origin") !== new URL(request.url).origin) {
+    return Response.json({ message: "허용되지 않은 요청입니다." }, { status: 403 });
+  }
   if (isOrder) headers.set("Content-Type", "application/json");
 
   try {
@@ -13,6 +16,7 @@ async function forward(resource: string, request: Request) {
       headers,
       body: isOrder ? await request.text() : undefined,
       cache: "no-store",
+      redirect: "error",
       signal: AbortSignal.timeout(10000),
     });
     const responseHeaders = new Headers({ "Cache-Control": "no-store" });

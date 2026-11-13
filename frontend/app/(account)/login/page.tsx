@@ -38,7 +38,7 @@ export default function Home() {
   ) {
     e.preventDefault();
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+    const apiBaseUrl = "/api/backend";
 
     const response = await fetch(
       `${apiBaseUrl}/login`,
@@ -60,7 +60,6 @@ export default function Home() {
   const data = await response.json();
 
   if (response.ok) {
-    localStorage.setItem("access_token", data.access_token);
     sessionStorage.setItem(
       "displayUser",
       JSON.stringify({
@@ -84,8 +83,7 @@ export default function Home() {
 }
 
   async function handleLogout() {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
-    localStorage.removeItem("access_token");
+    const apiBaseUrl = "/api/backend";
 
     await fetch(`${apiBaseUrl}/logout`, {
       method: "POST",

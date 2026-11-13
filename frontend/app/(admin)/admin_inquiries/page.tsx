@@ -1,5 +1,7 @@
 "use client";
 
+import { sessionFetch } from "../../(components)/auth/request-refresh";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,22 +13,15 @@ export default function InquiryManagerPage() {
 ) {
   event.preventDefault();
 
-  const token = localStorage.getItem("access_token");
 
-  if (!token) {
-    alert("관리자 로그인이 필요합니다.");
-    return;
-  }
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+  const apiBaseUrl = "/api/backend";
 
   try {
-    const response = await fetch(
+    const response = await sessionFetch(
       `${apiBaseUrl}/admin/inquiries/export`,
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       }

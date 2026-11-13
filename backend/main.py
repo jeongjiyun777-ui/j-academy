@@ -68,7 +68,7 @@ app = FastAPI()
 @app.middleware("http")
 async def prevent_sensitive_response_caching(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path in {
+    if request.cookies.get(ACCESS_COOKIE_NAME) or request.url.path in {
         "/register",
         "/login",
         "/refresh",
@@ -123,8 +123,34 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 14
 REFRESH_COOKIE_NAME = "refresh_token"
+security = HTTPBearer(auto_error=False)
+ACCESS_COOKIE_NAME = "access_token"
 
-security = HTTPBearer()
+
+def get_credentials(
+    request: Request,
+    bearer: HTTPAuthorizationCredentials | None = Depends(security),
+) -> HTTPAuthorizationCredentials:
+    if bearer:
+        return bearer
+    token = request.cookies.get(ACCESS_COOKIE_NAME)
+    if token:
+        if request.method not in {"GET", "HEAD", "OPTIONS"} and request.headers.get("origin"):
+            raise HTTPException(status_code=403, detail="Use the same-origin API gateway")
+        return HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    raise HTTPException(status_code=401, detail="Authentication required", headers={"WWW-Authenticate": "Bearer"})
+
+
+def set_access_cookie(response: Response, request: Request, token: str) -> None:
+    response.set_cookie(
+        key=ACCESS_COOKIE_NAME,
+        value=token,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=request.url.scheme == "https",
+        samesite="lax",
+        path="/",
+    )
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -171,30 +197,30 @@ def create_refresh_token(connection, user_id: int, role: str) -> str:
 
 
 def set_refresh_cookie(response: Response, request: Request, token: str) -> None:
-    is_https_origin = request.headers.get("origin", "").startswith("https://")
+    is_https_origin = request.url.scheme == "https"
     response.set_cookie(
         key=REFRESH_COOKIE_NAME,
         value=token,
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         httponly=True,
         secure=is_https_origin,
-        samesite="none" if is_https_origin else "lax",
+        samesite="lax",
         path="/",
     )
 
 
 def delete_refresh_cookie(response: Response, request: Request) -> None:
-    is_https_origin = request.headers.get("origin", "").startswith("https://")
+    is_https_origin = request.url.scheme == "https"
     response.delete_cookie(
         key=REFRESH_COOKIE_NAME,
         httponly=True,
         secure=is_https_origin,
-        samesite="none" if is_https_origin else "lax",
+        samesite="lax",
         path="/",
     )
 
 
-def get_current_student(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
+def get_current_student(credentials: HTTPAuthorizationCredentials = Depends(get_credentials)) -> int:
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -213,7 +239,7 @@ def get_current_student(credentials: HTTPAuthorizationCredentials = Depends(secu
             detail="토큰이 유효하지 않거나 만료되었습니다.",
         )
 
-def get_current_manager(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
+def get_current_manager(credentials: HTTPAuthorizationCredentials = Depends(get_credentials)) -> int:
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -528,6 +554,8 @@ def login(
     request: Request,
     response: Response,
 ):
+    if request.headers.get("origin"):
+        raise HTTPException(status_code=403, detail="Use the same-origin API gateway")
     username = login_data.username.strip().lower()
     manager_query = text("""
         SELECT id, name, username, password_hash, status
@@ -586,11 +614,10 @@ def login(
         "role": role,
     })
     set_refresh_cookie(response, request, refresh_token)
+    set_access_cookie(response, request, access_token)
 
     return {
         "message": "관리자 로그인 성공" if role == "manager" else "회원 로그인 성공",
-        "access_token": access_token,
-        "token_type": "bearer",
         "user": {
             "id": account["id"],
             "name": account["name"],
@@ -600,7 +627,7 @@ def login(
     }
 
 def get_current_user_payload(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Depends(get_credentials),
 ) -> dict:
     token = credentials.credentials
     try:
@@ -636,6 +663,8 @@ def refresh_access_token(
     request: Request,
     response: Response,
 ):
+    if request.headers.get("origin"):
+        raise HTTPException(status_code=403, detail="Use the same-origin API gateway")
     old_token = request.cookies.get(REFRESH_COOKIE_NAME)
     if not old_token:
         raise HTTPException(
@@ -711,11 +740,10 @@ def refresh_access_token(
         "role": role,
     })
     set_refresh_cookie(response, request, new_refresh_token)
+    set_access_cookie(response, request, access_token)
 
     return {
         "message": "토큰이 갱신되었습니다.",
-        "access_token": access_token,
-        "token_type": "bearer",
         "user": {
             "id": account["id"],
             "name": account["name"],
@@ -727,6 +755,8 @@ def refresh_access_token(
 
 @app.post("/logout")
 def logout(request: Request, response: Response):
+    if request.headers.get("origin"):
+        raise HTTPException(status_code=403, detail="Use the same-origin API gateway")
     refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
     if refresh_token:
         with engine.begin() as connection:
@@ -739,6 +769,7 @@ def logout(request: Request, response: Response):
             )
 
     delete_refresh_cookie(response, request)
+    response.delete_cookie(ACCESS_COOKIE_NAME, path="/", httponly=True, samesite="lax")
     return {"message": "로그아웃되었습니다."}
 
 

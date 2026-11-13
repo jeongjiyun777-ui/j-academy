@@ -1,7 +1,8 @@
 "use client";
 
+import { sessionFetch } from "../auth/request-refresh";
+
 import { CreditCard } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -172,9 +173,8 @@ export default function Header() {
   }, []);
   
   async function handleLogout() {
-    const token = localStorage.getItem("access_token");
     sessionStorage.removeItem("displayUser");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+    const apiBaseUrl = "/api/backend";
 
 
     try {
@@ -183,14 +183,12 @@ export default function Header() {
         headers: {
           "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         credentials: "include",
       });
     } catch (err) {
       console.error("로그아웃 요청 실패:", err);
     } finally {
-      localStorage.removeItem("access_token");
       sessionStorage.removeItem("displayUser");
 
 
@@ -209,22 +207,17 @@ export default function Header() {
     }
 
     async function loadMyApplications() {
-      const token = localStorage.getItem("access_token");
 
-      if (!token) {
-        return;
-      }
 
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+      const apiBaseUrl = "/api/backend";
 
       try {
-        const response = await fetch(
+        const response = await sessionFetch(
           `${apiBaseUrl}/applications/me`,
           {
             method: "GET",
             headers: {
               "ngrok-skip-browser-warning": "true",
-              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -286,9 +279,12 @@ export default function Header() {
       </div>
       <div className="relative w-full border-b border-slate-200">
         <div className="mx-auto flex min-h-[60px] max-w-[1440px] items-center justify-between gap-2.5 px-4 md:min-h-20 md:flex-wrap md:gap-y-0 md:px-6 lg:flex-nowrap lg:gap-3 lg:px-7">
-          <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <Image src="/j-academy-logo-web.png" alt="" width={36} height={36} className="size-9 shrink-0 object-contain" priority />
-            <span className="whitespace-nowrap bg-linear-to-b from-slate-700 to-slate-950 bg-clip-text text-[17px] font-extrabold leading-tight tracking-[-0.045em] text-transparent drop-shadow-[0_1px_1px_rgba(15,23,42,0.18)] sm:text-[19px]">
+          <Link href="/" className="group inline-flex shrink-0 select-none items-center gap-2 sm:gap-3">
+            <span aria-hidden="true" className="relative grid size-8 place-items-center rounded-lg bg-linear-to-br from-sky-400 via-blue-600 to-indigo-700 text-base font-black text-white shadow-[0_3px_0_#1e3a8a,0_6px_12px_#2563eb33] transition-transform group-hover:-translate-y-0.5 group-active:translate-y-0.5 sm:size-10 sm:rounded-xl sm:text-xl">
+              <span className="pointer-events-none absolute inset-x-1 top-0.5 h-1/2 rounded-t-lg bg-linear-to-b from-white/30 to-transparent" />
+              <span className="relative">J</span>
+            </span>
+            <span className="whitespace-nowrap bg-linear-to-r from-slate-950 to-blue-700 bg-clip-text text-[17px] font-extrabold tracking-[-0.045em] text-transparent drop-shadow-[0_1px_1px_#0f172a26] sm:text-[21px]">
               j-academy
             </span>
           </Link>

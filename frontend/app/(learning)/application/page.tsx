@@ -1,4 +1,6 @@
 "use client";
+
+import { sessionFetch } from "../../(components)/auth/request-refresh";
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
@@ -14,17 +16,15 @@ async function handleApplication(
 ) {
   event.preventDefault();
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
-  const token = localStorage.getItem("access_token");
+  const apiBaseUrl = "/api/backend";
 
   try {
-    const response = await fetch(`${apiBaseUrl}/applications`, {
+    const response = await sessionFetch(`${apiBaseUrl}/applications`, {
       method: "POST",
       headers: {
         "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
 
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       credentials: "include",
       body: JSON.stringify({

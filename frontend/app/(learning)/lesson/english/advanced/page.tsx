@@ -1,5 +1,7 @@
 "use client";
 
+import { sessionFetch } from "../../../../(components)/auth/request-refresh";
+
 import { useState, useEffect } from "react";
 import Image from 'next/image';
 import Link from "next/link";
@@ -15,15 +17,13 @@ export default function LessonPage() {
 
   useEffect(() => {
     async function getLessonAccess() {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
-      const token = localStorage.getItem("access_token");
+      const apiBaseUrl = "/api/backend";
 
       try {
-        const response = await fetch(`${apiBaseUrl}/lesson/access?subject=chinese`, {
+        const response = await sessionFetch(`${apiBaseUrl}/lesson/access?subject=chinese`, {
           method: "GET",
           headers: {
             "ngrok-skip-browser-warning": "true",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
         const data = await response.json();

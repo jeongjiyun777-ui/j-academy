@@ -1,5 +1,7 @@
 "use client";
 
+import { sessionFetch } from "../auth/request-refresh";
+
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
@@ -32,7 +34,6 @@ export default function Chatbot() {
   }
 
   function showLoginRequired() {
-    localStorage.removeItem("access_token");
     sessionStorage.removeItem("displayUser");
     setIsAuthenticated(false);
     setChatApplications([]);
@@ -50,11 +51,6 @@ export default function Chatbot() {
   ) {
     event.preventDefault();
 
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      showLoginRequired();
-      return;
-    }
 
     const trimmedMessage = message.trim();
 
@@ -80,21 +76,16 @@ export default function Chatbot() {
     setMessage("");
     setIsSending(true);
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+    const apiBaseUrl = "/api/backend";
 
     try {
-      const response = await fetch(
+      const response = await sessionFetch(
         `${apiBaseUrl}/chat`,
         {
           method: "POST",
           headers: {
             "ngrok-skip-browser-warning": "true",
             "Content-Type": "application/json",
-            ...(token
-              ? {
-                  Authorization: `Bearer ${token}`,
-                }
-              : {}),
           },
           credentials: "include",
           body: JSON.stringify({
@@ -157,20 +148,14 @@ export default function Chatbot() {
     event.preventDefault();
     setNoticeMessage("");
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
-    const token = localStorage.getItem("access_token");
+    const apiBaseUrl = "/api/backend";
 
-    if (!token) {
-      showLoginRequired();
-      return;
-    }
 
     try {
-      const response = await fetch(`${apiBaseUrl}/me`, {
+      const response = await sessionFetch(`${apiBaseUrl}/me`, {
         method: "GET",
         headers: {
           "ngrok-skip-browser-warning": "true",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         credentials: "include",
       });
@@ -224,11 +209,10 @@ export default function Chatbot() {
   const handleChatClick = async () => {
     setNoticeMessage("");
 
-    const token = localStorage.getItem("access_token");
     const savedUser = sessionStorage.getItem("displayUser");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+    const apiBaseUrl = "/api/backend";
 
-    if (!token || !savedUser) {
+    if (!savedUser) {
       showLoginRequired();
       return;
     }
@@ -238,7 +222,6 @@ export default function Chatbot() {
     try {
       currentUser = JSON.parse(savedUser);
     } catch {
-      localStorage.removeItem("access_token");
       sessionStorage.removeItem("displayUser");
       setIsAuthenticated(false);
       setNoticeMessage("로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.");
@@ -254,11 +237,10 @@ export default function Chatbot() {
     }
 
     try {
-      const response = await fetch(`${apiBaseUrl}/chat/access`, {
+      const response = await sessionFetch(`${apiBaseUrl}/chat/access`, {
         method: "GET",
         headers: {
           "ngrok-skip-browser-warning": "true",
-          Authorization: `Bearer ${token}`,
         },
       });
 

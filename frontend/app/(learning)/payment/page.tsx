@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { requestRefresh } from "../../(components)/auth/request-refresh";
+import { sessionFetch } from "../../(components)/auth/request-refresh";
 
 interface Course {
   id: number;
@@ -56,20 +56,10 @@ export default function PaymentPage() {
     setError("");
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://" + window.location.hostname + ":8000";
-      const refresh = await requestRefresh(apiBaseUrl);
-      if (refresh.status === 401) throw new Error("로그인 세션이 만료됐습니다. 다시 로그인해 주세요.");
-      if (!refresh.ok) throw new Error("로그인 세션을 확인할 수 없습니다.");
-      const session = await refresh.json();
-      if (session.user?.role !== "student" || typeof session.access_token !== "string") {
-        throw new Error("학생 계정으로 로그인해 주세요.");
-      }
-
-      const response = await fetch("/api/checkout/orders", {
+      const response = await sessionFetch("/api/checkout/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + session.access_token,
         },
         body: JSON.stringify({ courseId: selected.id }),
       });

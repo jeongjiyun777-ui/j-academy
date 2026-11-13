@@ -1,5 +1,7 @@
 "use client";
 
+import { sessionFetch } from "../../(components)/auth/request-refresh";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -23,22 +25,16 @@ export default function AdminApplicationsPage() {
   >({});
 
   async function loadAdminApplications(page: number = 1) {
-    const token = localStorage.getItem("access_token");
 
-    if (!token) {
-      setNoticeMessage("관리자 로그인이 필요합니다.");
-      return;
-    }
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+    const apiBaseUrl = "/api/backend";
 
     try {
-      const response = await fetch(
+      const response = await sessionFetch(
         `${apiBaseUrl}/admin/applications?page=${page}`,
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
             "ngrok-skip-browser-warning": "true",
           },
         }
@@ -83,8 +79,7 @@ export default function AdminApplicationsPage() {
   async function handleConfirm(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const token = localStorage.getItem("access_token");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? `http://${window.location.hostname}:8000`;
+    const apiBaseUrl = "/api/backend";
 
     const updates = Object.entries(selectedStatuses).map(
       ([applicationId, status]) => ({
@@ -99,11 +94,10 @@ export default function AdminApplicationsPage() {
     }
 
     try {
-      const response = await fetch(`${apiBaseUrl}/admin/applications/status`, {
+      const response = await sessionFetch(`${apiBaseUrl}/admin/applications/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({ updates }),

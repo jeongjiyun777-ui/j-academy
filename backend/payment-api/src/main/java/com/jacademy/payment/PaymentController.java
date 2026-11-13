@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +43,11 @@ public class PaymentController {
 
     @GetMapping("/checkout/session")
     public ResponseEntity<SessionUser> checkSession(
-            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @CookieValue(value = "access_token", required = false) String token) {
+        if (authorization == null && token != null) {
+            authorization = "Bearer " + token;
+        }
         if (authorization == null || !authorization.matches("(?i)Bearer [^\\s]+")) {
             return unauthorized();
         }
@@ -103,8 +108,13 @@ public class PaymentController {
     @PostMapping("/checkout/orders")
     public ResponseEntity<PendingOrder> createOrder(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @CookieValue(value = "access_token", required = false) String token,
+            @RequestHeader(value = HttpHeaders.ORIGIN, required = false) String origin,
             @RequestBody OrderRequest request) {
-        var session = checkSession(authorization);
+        if (authorization == null && token != null && origin != null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Use the same-origin API gateway");
+        }
+        var session = checkSession(authorization, token);
         var student = session.getBody();
         if (student == null) {
             return ResponseEntity.status(session.getStatusCode()).headers(session.getHeaders()).build();

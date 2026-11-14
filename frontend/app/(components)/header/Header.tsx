@@ -5,7 +5,7 @@ import { sessionFetch } from "../auth/request-refresh";
 
 import { CreditCard } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import PaymentDialog from "../../(learning)/payment/PaymentDialog";
 import { useEffect, useState } from "react";
 
 type LessonApplication = {
@@ -53,12 +53,12 @@ const navClass = "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md 
 const accountClass = "block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700";
 
 export default function Header() {
-  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState("");
   const [applications, setApplications] = useState<LessonApplication[]>([]);
   const [subjectsOpen, setSubjectsOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const canAccessLessons =
     isLoggedIn && userRole === "student";
@@ -258,6 +258,7 @@ export default function Header() {
       ] as const;
 
   return (
+    <>
     <header className="sticky top-0 z-50 w-full shrink-0 border-b border-slate-300 bg-white shadow-sm">
       <div className="w-full border-b border-slate-800 bg-slate-900 px-4 py-2 text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px]">
@@ -335,7 +336,8 @@ export default function Header() {
             {!canAccessAdmin && (
               <button
                 type="button"
-                onClick={() => canAccessLessons ? router.push("/payment") : window.alert("로그인이 필요한 서비스입니다.")}
+                aria-haspopup={canAccessLessons ? "dialog" : undefined}
+                onClick={() => canAccessLessons ? setPaymentOpen(true) : window.alert("로그인이 필요한 서비스입니다.")}
                 className="flex min-h-11 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-2.5 py-2 text-white shadow-sm transition-colors hover:from-sky-600 hover:to-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:px-3.5"
               >
                 <CreditCard aria-hidden="true" className="size-4 stroke-[2.2]" />
@@ -409,5 +411,7 @@ export default function Header() {
         </nav>
       </div>
     </header>
+    {paymentOpen && canAccessLessons && <PaymentDialog onClose={() => setPaymentOpen(false)} />}
+    </>
   );
 }

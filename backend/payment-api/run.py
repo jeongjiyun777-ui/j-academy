@@ -22,7 +22,7 @@ def main():
 
     config = dotenv_values(args.env_file) if args.env_file.is_file() else {}
     env = os.environ.copy()
-    for key in ("DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"):
+    for key in ("DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "TOSS_SECRET_KEY"):
         if config.get(key) is not None:
             env.setdefault(key, config[key])
     missing = [key for key in ("DB_NAME", "DB_USER", "DB_PASSWORD") if not env.get(key)]

@@ -85,7 +85,7 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
             <h2 className="text-lg font-semibold">결제 대기</h2>
             <p>주문번호 {order.orderId}</p>
             <p className="text-2xl font-bold">{won.format(order.amountKrw)}원</p>
-            <p className="text-sm">주문이 생성됐어요. 결제 승인 전까지 결제 대기 상태로 표시돼요.</p>
+            <p className="text-sm">수강료 결제 요청이 접수되었습니다. 현재 결제 대기 상태입니다.</p>
             {onDone ? <button type="button" onClick={onDone} className="text-sm font-semibold text-blue-700 underline">닫기</button> : <Link href="/" className="text-sm font-semibold text-blue-700 underline">홈으로</Link>}
           </section>
         ) : (
@@ -144,12 +144,12 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
               <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 underline">이용약관 보기</Link>
               <label className="mt-3 flex items-start gap-2">
                 <input type="checkbox" required disabled={submitting} checked={agreed} onChange={(event) => setAgreed(event.target.checked)} className="mt-1 accent-blue-600" />
-                이용약관을 확인했고 주문 생성에 동의합니다.
+                수강료와 이용약관을 확인했습니다.
               </label>
             </div>
             {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
             <button type="submit" disabled={!selected || !agreed || submitting} className="w-full rounded-xl bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-600">
-              {submitting ? "주문 확인 중…" : "결제 대기 주문 생성"}
+              {submitting ? "결제 신청 중…" : "수강료 결제 신청"}
             </button>
           </form>
         )}

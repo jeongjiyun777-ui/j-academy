@@ -26,8 +26,8 @@ export default function PaymentDialog({ onClose }: { onClose: () => void }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 id="payment-dialog-title" className="text-2xl font-bold tracking-tight text-slate-900">수강 결제</h2>
-          <p className="mt-1 text-sm text-slate-600">강좌와 수강료를 확인하고 주문을 생성해 주세요.</p>
+          <h2 id="payment-dialog-title" className="text-2xl font-bold tracking-tight text-slate-900">수강료 결제</h2>
+          <p className="mt-1 text-sm text-slate-600">수강할 외국어와 단계를 선택하고 수강료를 확인해 주세요.</p>
         </div>
         <button
           type="button"

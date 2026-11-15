@@ -77,8 +77,8 @@ export default function TeacherCarousel() {
               </div>
               <div className="space-y-5 px-[clamp(1.25rem,4vw,2.25rem)] py-6 sm:py-8">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-                    {teacher.name} 선생님
+                  <h3 className="text-xl font-bold tracking-tight text-slate-900">
+                    {teacher.name}{" "}<span className="text-sm font-medium text-slate-400">선생님</span>
                   </h3>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white shadow-xs">
                     <span>{teacher.language}</span>

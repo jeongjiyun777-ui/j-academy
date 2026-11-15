@@ -4,7 +4,7 @@ import InquiryForm from "./(components)/inquiries/InquiryForm";
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-white pb-6">
+    <main className="min-h-screen w-full bg-white">
       <HomeSections />
 
       <h1
@@ -18,7 +18,7 @@ export default function Home() {
       <section
         id="notice"
         aria-label="공지·이벤트"
-        className="w-full scroll-mt-64 border-y border-slate-300 bg-slate-100 md:scroll-mt-44 lg:scroll-mt-36"
+        className="w-full scroll-mt-64 md:scroll-mt-44 lg:scroll-mt-36"
       >
         <Image
           src="/J-online3.png"

@@ -257,20 +257,13 @@ export default function Header() {
       <div className="w-full border-b border-slate-800 bg-slate-900 px-4 py-2 text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px]">
           <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center tracking-tight text-slate-200">
-            <span className="font-bold text-sky-400">✨ 12월 25일 마감 임박</span>
+            <span className="font-bold text-sky-400">✨ 12월 25일까지</span>
             <span aria-hidden="true" className="hidden text-slate-500 sm:inline">|</span>
             <span>
               영어·스페인어·일본어·중국어{" "}
-              <strong className="font-semibold text-white">첫 달 수강료 10% 얼리버드 혜택</strong>
+              <strong className="font-semibold text-white">모든 과목 수강료 10% 할인 진행 중 · 얼리버드 혜택</strong>
             </span>
           </p>
-          <Link
-            href="/register_agree"
-            className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-900 shadow-xs transition-colors hover:bg-sky-50 sm:text-xs"
-          >
-            <span>할인 쿠폰 받기</span>
-            <span aria-hidden="true" className="font-extrabold text-blue-600">&gt;</span>
-          </Link>
         </div>
       </div>
       <div className="relative w-full border-b border-slate-200">

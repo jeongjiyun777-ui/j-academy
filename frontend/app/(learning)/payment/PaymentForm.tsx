@@ -153,7 +153,6 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
                       </span>
                       <span className="flex min-w-0 max-w-[65%] flex-wrap items-center justify-end gap-x-2 gap-y-0.5 tabular-nums">
                         <span className="text-right text-xs text-slate-500">
-                          <span className="mr-1">비교가 +10%</span>
                           <s className="decoration-double">{won.format(Math.round(course.priceKrw * 1.1))}원</s>
                         </span>
                         <strong className="rounded-lg bg-blue-50 px-2.5 py-1 font-semibold text-blue-700 sm:px-3">

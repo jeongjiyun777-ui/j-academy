@@ -15,12 +15,7 @@ type LessonApplication = {
 };
 
 
-const subjects = [
-  { href: "/teacher_english", label: "영어", icon: "english" },
-  { href: "/teacher_spanish", label: "스페인어", icon: "spanish" },
-  { href: "/teacher_japanese", label: "일본어", icon: "japanese" },
-  { href: "/teacher_chinese", label: "중국어", icon: "chinese" },
-] as const;
+const teachersLink = { href: "/#teachers", label: "강사진 소개", icon: "book" } as const;
 
 const paths = {
   academy: "m2 9 10-5 10 5-10 5-10-5Zm4 2v6c3 3 9 3 12 0v-6m4-2v8",
@@ -57,7 +52,6 @@ export default function Header() {
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState("");
   const [applications, setApplications] = useState<LessonApplication[]>([]);
-  const [subjectsOpen, setSubjectsOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const canAccessLessons =
@@ -290,42 +284,9 @@ export default function Header() {
               </Link>
             )}
             {!canAccessAdmin && (
-              <div
-                className="flex min-h-11 items-center lg:min-h-20"
-                onMouseEnter={() => setSubjectsOpen(true)}
-                onMouseLeave={(event) => {
-                  if (!event.currentTarget.contains(document.activeElement)) setSubjectsOpen(false);
-                }}
-                onBlur={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget)) setSubjectsOpen(false);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape" && subjectsOpen) {
-                    setSubjectsOpen(false);
-                    event.currentTarget.querySelector("button")?.focus();
-                  }
-                }}
-              >
-                <button
-                  type="button"
-                  aria-expanded={subjectsOpen}
-                  aria-controls="desktop-subject-menu"
-                  className={navClass}
-                  onClick={() => setSubjectsOpen((open) => !open)}
-                >
-                  <HeaderIcon name="book" /> 강사진 소개 <HeaderIcon name="chevron" small />
-                </button>
-                <div id="desktop-subject-menu" hidden={!subjectsOpen} className="absolute inset-x-0 top-full border-y border-slate-200 bg-white px-6 py-4 shadow-md">
-                  <div className="mx-auto grid max-w-2xl grid-cols-4 gap-3">
-                    {subjects.map(({ href, label, icon }) => (
-                      <Link key={href} href={href} onClick={() => setSubjectsOpen(false)} className="flex flex-col items-center gap-2 rounded-xl p-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-700">
-                        <span className="grid size-11 place-items-center rounded-xl bg-blue-50 text-blue-700"><HeaderIcon name={icon} /></span>
-                        {label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <Link href={teachersLink.href} className={navClass}>
+                <HeaderIcon name={teachersLink.icon} />{teachersLink.label}
+              </Link>
             )}
             {links.map(({ href, label, icon }) => (
               <Link key={href} href={href} className={navClass}><HeaderIcon name={icon} />{label}</Link>
@@ -403,7 +364,7 @@ export default function Header() {
         </div>
 
         <nav aria-label="모바일 주 메뉴" className={`grid gap-1.5 border-t border-slate-100 px-3 py-2 md:hidden ${canAccessAdmin ? "grid-cols-3" : "grid-cols-4"}`}>
-          {(canAccessAdmin ? links : [academyLink, ...subjects, ...links]).map(({ href, label, icon }) => (
+          {(canAccessAdmin ? links : [academyLink, teachersLink, ...links]).map(({ href, label, icon }) => (
             <Link key={href} href={href} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg bg-slate-50 px-1.5 py-1.5 text-center text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700">
               <HeaderIcon name={icon} small />{label}
             </Link>

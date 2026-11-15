@@ -1,6 +1,7 @@
 import { Nanum_Myeongjo } from "next/font/google";
 import Image from "next/image";
 import ReviewCarousel from "./ReviewCarousel";
+import TeacherCarousel from "./TeacherCarousel";
 
 const homeTitleFont = Nanum_Myeongjo({ weight: "700", display: "swap", preload: false, fallback: ["Batang", "serif"] });
 
@@ -32,6 +33,11 @@ export default function HomeSections() {
           sizes="100vw"
           className="block h-auto w-full"
         />
+      </section>
+
+      <section id="teachers" aria-labelledby="teachers-heading" className="scroll-mt-64 bg-slate-50 py-12 sm:py-16 md:scroll-mt-44 lg:scroll-mt-36">
+        <h2 id="teachers-heading" className={homeTitleClassName + " px-4 text-center"}>강사진 소개</h2>
+        <TeacherCarousel />
       </section>
 
       <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-64 border-b border-slate-200 bg-white pb-10 pt-12 sm:pt-16 md:scroll-mt-44 lg:scroll-mt-36">

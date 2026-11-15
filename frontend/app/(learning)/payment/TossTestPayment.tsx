@@ -36,7 +36,9 @@ export default function TossTestPayment({ orderId, amount }: { orderId: string; 
       const sdk = (window as Window & { TossPayments?: TossSdk }).TossPayments;
       if (!sdk) throw new Error("Toss SDK unavailable");
       const payment = sdk(clientKey).payment({ customerKey: "ANONYMOUS" });
-      const callback = new URL("/payment", window.location.origin);
+      const { origin, pathname, search, hash } = window.location;
+      const callback = new URL("/payment", origin);
+      callback.searchParams.set("returnTo", pathname + search + hash);
       await payment.requestPayment({
         method: "CARD",
         amount: { currency: "KRW", value: amount },

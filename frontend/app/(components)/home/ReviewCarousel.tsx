@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { REVIEW_DATA } from "./reviewData";
 
 const total = REVIEW_DATA.length;
@@ -32,6 +32,16 @@ function ReviewCard({ index, active }: { index: number; active: boolean }) {
 
 export default function ReviewCarousel() {
   const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || total < 2) return;
+
+    const timer = window.setTimeout(() => {
+      setIndex((current) => (current + 1) % total);
+    }, 3500);
+    return () => window.clearTimeout(timer);
+  }, [index, paused]);
   const previous = (index + total - 1) % total;
   const next = (index + 1) % total;
 
@@ -45,7 +55,7 @@ export default function ReviewCarousel() {
         <div className="absolute inset-y-0 right-full mr-4 hidden w-full sm:block">
           <ReviewCard index={previous} active={false} />
         </div>
-        <div aria-live="polite" aria-atomic="true">
+        <div aria-live={paused ? "polite" : "off"} aria-atomic="true">
           <ReviewCard index={index} active />
         </div>
         <div className="absolute inset-y-0 left-full ml-4 hidden w-full sm:block">
@@ -66,6 +76,13 @@ export default function ReviewCarousel() {
         </div>
       </div>
       <p className="mt-4 text-center text-sm tabular-nums text-slate-600">{index + 1} / {total}</p>
+      <button
+        type="button"
+        onClick={() => setPaused((current) => !current)}
+        className="mx-auto mt-3 block rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+      >
+        {paused ? "자동 전환 재생" : "자동 전환 일시정지"}
+      </button>
     </div>
   );
 }

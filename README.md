@@ -84,7 +84,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 
 - **현재** — PostgreSQL에 적용할 강좌·주문 스키마를 작성했습니다. 기초 12만 원, 중급 15만 원, 고급 18만 원이며, 주문은 생성 당시 금액과 `결제대기` 상태를 기록하도록 설계했습니다. [SQL 스키마](db/courses_orders.sql)
 - **멱등성의 본질** — 프론트가 같은 결제 요청을 10번 보내도 결제는 한 건만 처리해야 합니다. 같은 주문의 같은 결제 시도에는 동일한 멱등성 키를 사용합니다. 이미 성공한 요청이면 서버가 저장된 결과를 반환합니다. 처리 중인 요청은 진행 중임을 응답하고, 같은 키에 다른 요청 내용이 들어오면 충돌로 처리할 계획입니다.
-- **다음 구현** — Spring Boot에서 DB의 수강료로 주문을 만들고, 모의 결제부터 연결할 계획입니다. DB 고유 제약과 트랜잭션으로 동시에 도착한 요청 중 한 건만 처리 권한을 얻도록 설계하고, 실제 결제 연동 단계에서는 PG가 지원하는 멱등성 키와 결제 결과 조회도 활용할 예정입니다.
+- **다음 구현** — 배포 화면에서 토스 테스트 결제 한 건을 진행해 주문 완료, 수강 자동 승인, 관리자 메일 수신을 확인합니다.
 - **Locust 검증 계획** — 테스트 환경에서 같은 키로 10개 동시 요청을 보내 결제 기록이 한 건인지 DB에서 확인합니다. 서로 다른 주문도 함께 부하를 걸어 p95 응답 시간, 실패율, 처리량, DB 락 대기와 커넥션 풀 사용량을 비교합니다. 측정 결과를 보고 타임아웃과 동시 처리 한도를 조정할 계획입니다. 결제 API 구현과 결제 부하 측정은 예정 단계입니다.
 
 ### Spring Boot 회원 인증 실습
@@ -93,7 +93,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 - **요청의 두 방향** — `@RestController`의 `@GetMapping("/checkout/session")`은 Java가 요청을 받는 입구입니다. 메서드 안의 `RestClient`는 Java가 받은 Bearer 토큰을 기존 FastAPI의 `/me`에 보내는 도구입니다. `private final` 필드로 두어 컨트롤러 안에서 같은 클라이언트를 재사용했습니다.
 - **실패 경로와 반환값** — Java의 `try/catch`는 Python의 `try/except`와 같은 역할을 합니다. `catch`는 예외가 났을 때 실행할 경로를 정하고, `return`은 응답을 돌려줍니다. 토큰을 확인할 수 없는 경우 중 인증 서버 장애는 `502`, 토큰 누락·거절은 `401`로 처리합니다.
 - **직접 확인한 결과** — PowerShell에서 로컬 Java 서버를 토큰 없이 호출해 `401`과 `WWW-Authenticate: Bearer`를 확인했습니다. 임시 인증 서버를 사용한 별도 테스트에서는 학생 `200`, 관리자 `403`, 누락·오류 토큰 `401`을 검증했습니다.
-- **다음 실습** — 실제 HttpOnly 쿠키로 FastAPI `POST /refresh`를 호출하고, 발급된 액세스 토큰을 메모리에서 Java에 전달해 학생 ID가 돌아오는지 확인할 예정입니다. 이후 DB에서 수강료를 읽고 결제 대기 주문을 저장하는 기능을 붙일 계획입니다.
+- **현재 주문 요청** — 브라우저가 HttpOnly 쿠키를 Next.js에 보내면 Next.js가 액세스 토큰 쿠키를 Spring Boot에 전달합니다. Spring Boot는 FastAPI로 학생 권한을 확인한 후 주문을 처리합니다.
 
 [Spring Boot 인증 코드](backend/payment-api/src/main/java/com/jacademy/payment)
 
@@ -102,7 +102,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS / Python · FastAPI · Pyda
 - **가격의 기준은 DB입니다.** `payment-api`의 `GET /checkout/courses`가 PostgreSQL의 `public.courses`를 조회합니다. `JdbcTemplate`으로 SQL을 실행하고, 각 행을 `Course` 객체로 변환해 JSON으로 반환합니다.
 - **확인한 결과** — 로컬 Spring Boot를 실행해 `200 OK`와 강좌 12건을 확인했습니다. 영어 기초반은 `priceKrw: 120000`으로 반환됐습니다. 이 API는 공개 강좌와 수강료를 조회합니다.
 - **DB 설정** — 로컬에서는 기존 Python 백엔드의 `.env`에서 DB 접속값을 읽어 Spring Boot 환경 변수로 전달합니다.
-- **다음 단계** — 학생 권한을 확인한 뒤, 받은 `courseId`로 DB 가격을 읽어 `결제대기` 주문에 금액을 저장할 계획입니다. 이후 모의 결제와 멱등성 검증을 붙입니다.
+- **주문 생성** — 학생이 선택한 `courseId`를 보내면 Spring Boot가 DB에서 현재 수강료를 읽어 결제 대기 주문에 저장합니다. 프론트는 응답에서 주문번호와 금액을 받아 표시합니다.
 
 [강좌 조회 코드](backend/payment-api/src/main/java/com/jacademy/payment/PaymentController.java)
 
@@ -118,6 +118,22 @@ python backend/payment-api/run.py
 curl.exe -i http://localhost:8080/checkout/courses
 ```
 
+
+### 프론트엔드 트러블슈팅 — 수강료 결제창과 강좌 조회
+
+- **페이지 이동으로 흐름이 끊겼습니다.** 기존 헤더의 결제 버튼은 `/payment`로 이동했습니다. 현재 페이지에서 수강료를 확인할 수 있도록 공용 헤더에 결제 모달을 연결했고, 기존 `/payment`도 같은 `PaymentForm`을 사용합니다.
+- **창의 열림 상태와 학생 권한을 함께 확인했습니다.** `const [paymentOpen, setPaymentOpen] = useState(false)`에서 `const`는 React가 돌려준 현재 상태와 변경 함수를 꺼냅니다. React가 상태를 기억하고, 학생이 버튼을 누르면 `setPaymentOpen(true)`가 다음 렌더링을 요청합니다. `paymentOpen && canAccessLessons`가 참이면 모달을 그리고, `<dialog>`의 `showModal()`이 현재 화면 위에 창을 띄웁니다. 닫기 버튼은 부모가 넘겨준 `onClose`를 호출해 상태를 다시 `false`로 바꿉니다.
+- **강좌 선택과 서버 응답에 따라 화면을 바꿨습니다.** 외국어를 바꾸면 기존 단계 선택을 초기화하고 해당 언어의 강좌만 표시합니다. 주문 응답을 `setOrder()`에 담으면 입력 폼이 결제 대기 결과로 바뀝니다. 제목과 버튼 문구는 “수강료 결제”, “수강료 결제 신청”으로 정리했습니다.
+- **결제창을 열 때마다 강좌 조회가 DB까지 갔습니다.** Next.js 서버에서 공개 강좌 조회 GET에 `force-cache`를 적용했습니다. 로그인 쿠키를 제외한 동일 요청에 저장된 목록이 있으면 이를 재사용합니다. 주문 POST는 `isOrder`로 구분해 `no-store`를 유지하고, Spring Boot가 학생 권한과 최신 수강료를 확인합니다. 캐시가 비어 있으면 첫 조회에는 원본 서버가 필요하며 배포 후 캐시 적중과 응답 시간은 측정 예정입니다.
+
+[헤더와 화면 상태](frontend/app/%28components%29/header/Header.tsx) · [결제 폼](frontend/app/%28learning%29/payment/PaymentForm.tsx) · [강좌 조회 캐시](frontend/app/api/checkout/%5Bresource%5D/route.ts)
+
+### 토스 테스트 환경
+
+- Vercel의 `NEXT_PUBLIC_TOSS_CLIENT_KEY`와 Render Spring Boot 서비스의 `TOSS_SECRET_KEY`를 설정했습니다. 로컬에서는 각각 `frontend/.env.local`, `backend/config/.env`를 사용하고, `run.py`가 서버 키를 Java 실행 환경으로 전달합니다. 가짜 값으로 전달 여부와 터미널 환경변수 우선순위를 확인했습니다.
+- 테스트 카드 결제를 승인하면 Spring Boot가 주문의 결제 완료와 수강 승인을 함께 저장합니다. 같은 완료 주문을 다시 확인하면 저장된 결과를 반환합니다. 커밋 후 FastAPI의 내부 POST에 알림을 보내고, FastAPI가 Brevo 메일 작업을 등록합니다.
+- 기존 DB에는 [토스 결제 마이그레이션](db/toss_payment.sql)을 적용합니다. Render의 결제 API와 FastAPI에는 같은 `PAYMENT_NOTIFICATION_SECRET`을 설정합니다.
+- 검증 명령은 `python -m pytest backend/tests`와 `mvn -f backend/payment-api/pom.xml test`입니다. 테스트는 모의 토스 응답과 메일 발송을 사용합니다. 배포 환경의 테스트 카드 승인과 실제 메일 수신은 별도로 확인합니다.
 
 ## 범위와 남은 개선
 

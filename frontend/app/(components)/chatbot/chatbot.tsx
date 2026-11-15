@@ -23,6 +23,7 @@ export default function Chatbot() {
   const [greeting, setGreeting] = useState("");
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(false);
   const [messages, setMessages] = useState<
     { sender: "user" | "bot"; text: string }[]
   >([]);
@@ -101,14 +102,19 @@ export default function Chatbot() {
         return;
       }
 
-      const data = await response.json();
+      if (response.status >= 500) {
+        throw new Error("상담 서버가 응답하지 않습니다. 잠시 후 다시 시도해 주세요.");
+      }
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
         throw new Error(
-          data.detail ??
+          typeof data?.detail === "string" ? data.detail :
             "AI 답변을 가져오지 못했습니다."
         );
       }
+
+      if (!data || typeof data.answer !== "string") throw new Error("상담 답변을 확인할 수 없습니다.");
 
       if (data.should_close === true) {
         setNoticeMessage(
@@ -166,11 +172,14 @@ export default function Chatbot() {
         return;
       }
 
-      const data = await response.json();
+      if (response.status >= 500) {
+        throw new Error("상담 서버가 응답하지 않습니다. 잠시 후 다시 시도해 주세요.");
+      }
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
         setNoticeMessage(
-          data.detail ?? "수강신청은 로그인 후 이용할 수 있습니다."
+          typeof data?.detail === "string" ? data.detail : "수강신청은 로그인 후 이용할 수 있습니다."
         );
         return;
       }
@@ -185,7 +194,7 @@ export default function Chatbot() {
       router.push("/application");
     } catch (error) {
       console.error("로그인 상태 확인 오류:", error);
-      setNoticeMessage("서버에 연결할 수 없습니다.");
+      setNoticeMessage(error instanceof Error ? error.message : "서버에 연결할 수 없습니다.");
     }
   }
 
@@ -208,6 +217,7 @@ export default function Chatbot() {
 }
 
   const handleChatClick = async () => {
+    if (isCheckingAccess) return;
     setNoticeMessage("");
 
     const savedUser = sessionStorage.getItem("displayUser");
@@ -237,6 +247,7 @@ export default function Chatbot() {
       return;
     }
 
+    setIsCheckingAccess(true);
     try {
       const response = await sessionFetch(`${apiBaseUrl}/chat/access`, {
         method: "GET",
@@ -250,14 +261,17 @@ export default function Chatbot() {
         return;
       }
 
-      const data = await response.json();
+      if (response.status >= 500) {
+        throw new Error("상담 서버가 응답하지 않습니다. 잠시 후 다시 시도해 주세요.");
+      }
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
         setIsAuthenticated(false);
 
         if (response.status === 403) {
           setNoticeMessage(
-            data.detail ??
+            typeof data?.detail === "string" ? data.detail :
               "수강 승인 완료 학생만 AI 학습 상담을 이용할 수 있습니다."
           );
           return;
@@ -265,17 +279,20 @@ export default function Chatbot() {
 
         if (response.status === 404) {
           setNoticeMessage(
-            data.detail ?? "학생 정보를 찾을 수 없습니다."
+            typeof data?.detail === "string" ? data.detail : "학생 정보를 찾을 수 없습니다."
           );
           return;
         }
 
         setNoticeMessage(
-          data.detail ?? "AI 학습 상담을 이용할 수 없습니다."
+          typeof data?.detail === "string" ? data.detail : "AI 학습 상담을 이용할 수 없습니다."
         );
         return;
       }
 
+      if (!data || !Array.isArray(data.applications) || typeof data.greeting !== "string") {
+        throw new Error("상담 정보를 확인할 수 없습니다.");
+      }
       setIsAuthenticated(true);
       setChatApplications(data.applications);
       setChatSubject("");
@@ -293,7 +310,9 @@ export default function Chatbot() {
     } catch (error) {
       console.error("챗봇 접근 확인 오류:", error);
       setIsAuthenticated(false);
-      setNoticeMessage("서버에 연결할 수 없습니다.");
+      setNoticeMessage(error instanceof Error ? error.message : "서버에 연결할 수 없습니다.");
+    } finally {
+      setIsCheckingAccess(false);
     }
   };
 
@@ -316,7 +335,7 @@ export default function Chatbot() {
   return (
     <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       {isOpen && (
-        <section className="relative mb-3 grid h-[480px] max-h-[82vh] w-[calc(100vw-2rem)] max-w-[360px] grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-xl sm:w-[350px]">
+        <section className="relative mb-3 grid h-[540px] max-h-[82dvh] w-[calc(100vw-2rem)] max-w-[420px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-xl">
           <header className="flex items-center gap-2 bg-slate-950 px-3.5 py-3 text-white">
             <h2><AcademyBrand onDark /></h2>
 
@@ -340,8 +359,8 @@ export default function Chatbot() {
           </header>
 
           {activeTab === "home" ? (
-            <div className="h-full min-h-0 bg-slate-50 p-3 sm:p-3.5">
-              <div className="grid h-full w-full grid-rows-[auto_1fr_auto_auto] rounded-xl bg-white p-4 shadow-sm">
+            <div className="min-h-0 overflow-y-auto bg-slate-50 px-[clamp(0.625rem,3vw,1rem)] py-3">
+              <div className="flex min-h-full flex-col gap-4 rounded-xl bg-white px-[clamp(0.75rem,4vw,1.25rem)] py-4 shadow-sm">
                 <div className="flex items-center gap-2.5">
                   <Image
                     src="/j-academy-mark.svg"
@@ -362,7 +381,7 @@ export default function Chatbot() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid self-center gap-3">
+                <div className="grid w-full flex-1 content-center gap-3">
                   <a
                     href="https://map.naver.com/p/search/강남역%201번%20출구"
                     target="_blank"
@@ -422,25 +441,25 @@ export default function Chatbot() {
                   </Link>
 
                   {noticeMessage && (
-                    <div className="mt-2 rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-medium text-amber-800">
+                    <div role="alert" className="mt-2 rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-medium text-amber-800">
                       {noticeMessage}
                     </div>
                   )}
                 </div>
 
-                <div className="mb-3 border-t border-slate-200 pt-2.5">
+                <div className="space-y-3 rounded-xl border border-green-100 bg-green-50 px-[clamp(0.5rem,3vw,1rem)] py-3">
                   <p className="text-center text-[11px] font-medium text-green-600">
                     AI 학습 상담사 운영시간: 24시간
                   </p>
+                  <button
+                    type="button"
+                    onClick={handleChatClick}
+                    disabled={isCheckingAccess}
+                    className="w-full rounded-lg bg-green-400 px-3 py-2.5 text-sm font-bold text-slate-900 transition-colors hover:bg-green-500 disabled:opacity-60"
+                  >
+                    {isCheckingAccess ? "상담 정보를 불러오는 중…" : "학습 상담 받기"}
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleChatClick}
-                  className="w-full rounded-lg bg-green-400 px-3 py-2.5 text-sm font-bold text-slate-900 transition-colors hover:bg-green-500"
-                >
-                  학습 상담 받기
-                </button>
               </div>
             </div>
           ) : (
@@ -521,6 +540,7 @@ export default function Chatbot() {
                       )}
                   </div>
                 ))}
+                {isSending && <p role="status" className="text-xs text-slate-600">답변을 불러오는 중…</p>}
               </div>
 
               <form
@@ -576,13 +596,14 @@ export default function Chatbot() {
             <button
               type="button"
               onClick={handleChatClick}
+              disabled={isCheckingAccess}
               className={`border-l border-slate-200 py-2.5 text-xs font-semibold sm:text-sm ${
                 activeTab === "chat"
                   ? "text-blue-600"
                   : "text-slate-500"
               }`}
             >
-              대화
+              {isCheckingAccess ? "불러오는 중…" : "대화"}
             </button>
           </nav>
         </section>

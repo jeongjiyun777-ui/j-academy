@@ -5,22 +5,22 @@ import { useEffect, useState } from "react";
 
 const teachers = [
   {
-    language: "영어", name: "맥칸지", image: "english-teacher.png",
+    language: "영어", englishLabel: "ENGLISH", name: "맥칸지", image: "english-teacher.png",
     university: "University of Pennsylvania", degree: "영어교육학 석사",
     career: ["제이 온라인학원 대표 강사", "대형 어학원 토익·스피킹 대표 강사 (4년)", "외국계 IT 기업 비즈니스 영어 전담 출강 (2년)"],
   },
   {
-    language: "스페인어", name: "알바레즈", image: "spanish-teacher.png",
+    language: "스페인어", englishLabel: "SPANISH", name: "알바레즈", image: "spanish-teacher.png",
     university: "Universidad Complutense de Madrid", degree: "스페인어문학 학사",
     career: ["제이 외국어 온라인학원 대표 강사", "마드리드 주립 어학원 스페인어(ELE) 튜터 (2년)", "외교관 및 기업 임원 대상 스페인어 출강 (2년)"],
   },
   {
-    language: "일본어", name: "사토 히마리", image: "japanese-teacher.png",
+    language: "일본어", englishLabel: "JAPANESE", name: "사토 히마리", image: "japanese-teacher.png",
     university: "Waseda University", degree: "교육학부 일본어교육전공 학사",
     career: ["제이 외국어 온라인학원 대표 강사", "도쿄 소재 어학원 일본어 강사 (2년)", "한일 교류 프로그램 언어·문화 코디네이터 (1년)"],
   },
   {
-    language: "중국어", name: "장위통", image: "chinese-teacher.png",
+    language: "중국어", englishLabel: "CHINESE", name: "장위통", image: "chinese-teacher.png",
     university: "Beijing University", degree: "대외한어과 학사",
     career: ["제이 온라인학원 대표 강사", "베이징 소재 어학원 외국인 전담 중국어 강사 (2년)", "글로벌 기업 임원진 비즈니스 중국어 트레이너 (2년)"],
   },
@@ -76,9 +76,15 @@ export default function TeacherCarousel() {
                 </div>
               </div>
               <div className="space-y-5 px-[clamp(1.25rem,4vw,2.25rem)] py-6 sm:py-8">
-                <div>
-                  <h1 className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold">{teacher.language}</h1>
-                  <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{teacher.name} 선생님</h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h3 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                    {teacher.name} 선생님
+                  </h3>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white shadow-xs">
+                    <span>{teacher.language}</span>
+                    <span aria-hidden="true" className="font-medium text-blue-200">|</span>
+                    <span lang="en" className="text-[10px] tracking-wider text-blue-100">{teacher.englishLabel}</span>
+                  </span>
                 </div>
                 <div className="flex gap-3 rounded-2xl bg-blue-50 px-4 py-3">
                   <span className="mt-0.5 text-blue-700"><CardIcon path={educationPath} /></span>

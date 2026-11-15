@@ -139,7 +139,7 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
                 <legend className="mb-3 font-semibold text-slate-900">단계 및 수강료</legend>
                 <div className="grid max-h-48 gap-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2">
                   {visibleCourses.map((course) => (
-                    <label key={course.id} className="flex cursor-pointer items-center gap-3 rounded-lg bg-white px-3 py-3 text-sm text-slate-800 ring-1 ring-slate-200 hover:bg-blue-50 has-checked:ring-blue-600">
+                    <label key={course.id} className="flex cursor-pointer items-center gap-2 rounded-lg bg-white px-2.5 py-3 text-sm sm:gap-3 sm:px-3 text-slate-800 ring-1 ring-slate-200 hover:bg-blue-50 has-checked:ring-blue-600">
                       <input
                         type="radio"
                         name="course"
@@ -151,7 +151,15 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
                       <span className="min-w-0 flex-1 font-medium">
                         {course.subject} {levelLabels[course.level] ?? course.level}
                       </span>
-                      <span className="shrink-0 font-semibold tabular-nums">{won.format(course.priceKrw)}원</span>
+                      <span className="flex min-w-0 max-w-[65%] flex-wrap items-center justify-end gap-x-2 gap-y-0.5 tabular-nums">
+                        <span className="text-right text-xs text-slate-500">
+                          <span className="mr-1">비교가 +10%</span>
+                          <s className="decoration-double">{won.format(Math.round(course.priceKrw * 1.1))}원</s>
+                        </span>
+                        <strong className="rounded-lg bg-blue-50 px-2.5 py-1 font-semibold text-blue-700 sm:px-3">
+                          {won.format(course.priceKrw)}원
+                        </strong>
+                      </span>
                     </label>
                   ))}
                 </div>

@@ -3,21 +3,21 @@ const paymentApi = process.env.PAYMENT_API_BASE_URL ?? "http://127.0.0.1:8080";
 async function forward(resource: string, request: Request) {
   const headers = new Headers();
   const cookie = request.headers.get("cookie")?.split(/;\s*/).find((part) => part.startsWith("access_token="));
-  if (resource === "orders" && cookie) headers.set("Cookie", cookie);
-  const isOrder = resource === "orders";
+  if (request.method === "POST" && cookie) headers.set("Cookie", cookie);
+  const isOrder = request.method === "POST";
   if (isOrder && request.headers.get("origin") !== new URL(request.url).origin) {
     return Response.json({ message: "허용되지 않은 요청입니다." }, { status: 403 });
   }
   if (isOrder) headers.set("Content-Type", "application/json");
 
   try {
-    const upstream = await fetch(new URL("/checkout/" + resource, paymentApi), {
+    const upstream = await fetch(new URL("/checkout/" + (resource === "ready" ? "courses" : resource), paymentApi), {
       method: request.method,
       headers,
       body: isOrder ? await request.text() : undefined,
-      cache: isOrder ? "no-store" : "force-cache",
+      cache: resource === "courses" ? "force-cache" : "no-store",
       redirect: "error",
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(resource === "confirm" ? 25000 : 10000),
     });
     const responseHeaders = new Headers({ "Cache-Control": "no-store" });
     for (const name of ["content-type", "www-authenticate"]) {
@@ -32,10 +32,10 @@ async function forward(resource: string, request: Request) {
 
 export async function GET(request: Request, context: { params: Promise<{ resource: string }> }) {
   const { resource } = await context.params;
-  return resource === "courses" ? forward(resource, request) : new Response(null, { status: 404 });
+  return (resource === "courses" || resource === "ready") ? forward(resource, request) : new Response(null, { status: 404 });
 }
 
 export async function POST(request: Request, context: { params: Promise<{ resource: string }> }) {
   const { resource } = await context.params;
-  return resource === "orders" ? forward(resource, request) : new Response(null, { status: 404 });
+  return (resource === "orders" || resource === "confirm") ? forward(resource, request) : new Response(null, { status: 404 });
 }

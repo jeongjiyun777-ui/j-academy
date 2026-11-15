@@ -3,7 +3,6 @@ const baseUrl = process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL
 const routes: Record<string, string[]> = {
   GET: ["me", "applications/me", "lesson/access", "chat/access", "admin/applications", "admin/students", "admin/students/search", "admin/students/export", "admin/inquiries/export"],
   POST: ["login", "refresh", "logout", "applications", "chat"],
-  PATCH: ["admin/applications/status"],
 };
 
 type Context = { params: Promise<{ path: string[] }> };
@@ -45,4 +44,4 @@ async function forward(request: Request, context: Context) {
   }
 }
 
-export { forward as GET, forward as POST, forward as PATCH };
+export { forward as GET, forward as POST };

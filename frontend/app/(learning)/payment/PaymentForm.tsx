@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import TossTestPayment from "./TossTestPayment";
 import { useEffect, useRef, useState } from "react";
 import { sessionFetch } from "../../(components)/auth/request-refresh";
 
@@ -14,6 +15,7 @@ interface Course {
 interface Order {
   orderId: number;
   amountKrw: number;
+  tossOrderId: string;
   status: string;
 }
 
@@ -26,6 +28,7 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
   const [selectedId, setSelectedId] = useState<number>();
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [preparing, setPreparing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order>();
@@ -60,6 +63,17 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
     setError("");
 
     try {
+      setPreparing(true);
+      for (let attempt = 0; ; attempt++) {
+        const ready = await fetch("/api/checkout/ready", { cache: "no-store" })
+          .catch(() => null);
+        if (ready?.ok && ready.headers.get("content-type")?.includes("application/json")) break;
+        if ((ready && ready.status >= 400 && ready.status < 500 && ready.status !== 429) || attempt >= 6) {
+          throw new Error("결제 서버가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+      setPreparing(false);
       const response = await sessionFetch("/api/checkout/orders", {
         method: "POST",
         headers: {
@@ -68,12 +82,19 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
         body: JSON.stringify({ courseId: selected.id }),
       });
       if (response.status === 401 || response.status === 403) throw new Error("학생 로그인 상태를 확인해 주세요.");
-      if (!response.ok) throw new Error("주문 결과를 확인할 수 없습니다.");
-      setOrder(await response.json());
+      if (response.status === 400) throw new Error("강좌 선택을 확인한 뒤 다시 신청해 주세요.");
+      if (response.status === 404) throw new Error("학생 정보나 강좌를 찾을 수 없습니다.");
+      if (response.status >= 500) {
+        throw new Error("결제 서버 응답을 확인하지 못했습니다. 다시 신청하기 전에 주문이 접수됐는지 확인해 주세요.");
+      }
+      if (!response.ok) throw new Error("수강료 결제 신청을 처리하지 못했습니다.");
+      const createdOrder: Order = await response.json();
+      setOrder(createdOrder);
     } catch (error) {
       setError(error instanceof Error ? error.message : "주문 요청에 실패했습니다.");
     } finally {
       inFlight.current = false;
+      setPreparing(false);
       setSubmitting(false);
       onBusyChange?.(false);
     }
@@ -86,10 +107,11 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
             <p>주문번호 {order.orderId}</p>
             <p className="text-2xl font-bold">{won.format(order.amountKrw)}원</p>
             <p className="text-sm">수강료 결제 요청이 접수되었습니다. 현재 결제 대기 상태입니다.</p>
+            <TossTestPayment orderId={order.tossOrderId} amount={order.amountKrw} />
             {onDone ? <button type="button" onClick={onDone} className="text-sm font-semibold text-blue-700 underline">닫기</button> : <Link href="/" className="text-sm font-semibold text-blue-700 underline">홈으로</Link>}
           </section>
         ) : (
-          <form onSubmit={createOrder} className="mt-5 space-y-4">
+          <form onSubmit={createOrder} aria-busy={submitting} className="mt-5 space-y-4">
             <fieldset disabled={loading || submitting} className="min-w-0">
               <legend className="mb-3 font-semibold text-slate-900">외국어 선택하기</legend>
               {loading ? (
@@ -147,6 +169,12 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
                 수강료와 이용약관을 확인했습니다.
               </label>
             </div>
+            {submitting && (
+              <p role="status" className="flex items-center justify-center gap-2 text-sm text-slate-700">
+                <span aria-hidden="true" className="size-4 rounded-full border-2 border-blue-200 border-t-blue-700 motion-safe:animate-spin" />
+                {preparing ? "결제 서버에 연결 중입니다…" : "결제 신청을 처리하고 있습니다."}
+              </p>
+            )}
             {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
             <button type="submit" disabled={!selected || !agreed || submitting} className="w-full rounded-xl bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-600">
               {submitting ? "결제 신청 중…" : "수강료 결제 신청"}

@@ -34,15 +34,17 @@ def test_duplicate_application_is_rejected(api, db):
     with db.connect() as conn:
         assert conn.execute(text('SELECT COUNT(*) FROM applications')).scalar_one() == 1
 
-def test_changing_class_requires_approval_again(api, db):
+def test_approved_class_change_requires_payment(api, db):
     api.apply_course(api.ApplicationCreate(subject='영어', class_name='A반'), BackgroundTasks(), 1)
     with db.begin() as conn:
         conn.execute(text("UPDATE applications SET status='승인완료'"))
-    result = api.apply_course(api.ApplicationCreate(subject='영어', class_name='B반'), BackgroundTasks(), 1)
-    assert result['student']['class_name'] == 'B반'
-    assert result['student']['status'] == '승인대기'
+    tasks = BackgroundTasks()
+    with pytest.raises(HTTPException) as caught:
+        api.apply_course(api.ApplicationCreate(subject='영어', class_name='B반'), tasks, 1)
+    assert caught.value.status_code == 409
+    assert tasks.tasks == []
     with db.connect() as conn:
-        assert conn.execute(text('SELECT COUNT(*) FROM applications')).scalar_one() == 1
+        assert tuple(conn.execute(text('SELECT class_name, status FROM applications')).one()) == ('A반', '승인완료')
 
 def test_missing_student_cannot_apply(api, db):
     with pytest.raises(HTTPException) as caught:

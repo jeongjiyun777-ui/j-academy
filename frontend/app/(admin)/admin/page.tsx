@@ -20,10 +20,6 @@ export default function AdminApplicationsPage() {
   const [applicationCurrentPage, setApplicationCurrentPage] = useState(1);
   const [applicationTotalPages, setApplicationTotalPages] = useState(1);
   const [noticeMessage, setNoticeMessage] = useState("");
-  const [selectedStatuses, setSelectedStatuses] = useState<
-    Record<number, "승인대기" | "승인완료">
-  >({});
-
   async function loadAdminApplications(page: number = 1) {
 
 
@@ -63,70 +59,9 @@ export default function AdminApplicationsPage() {
   }
 
   useEffect(() => {
-    loadAdminApplications(1);
+    const timer = window.setTimeout(() => void loadAdminApplications(1), 0);
+    return () => window.clearTimeout(timer);
   }, []);
-
-  function handleStatusChange(
-    applicationId: number,
-    status: "승인대기" | "승인완료"
-  ) {
-    setSelectedStatuses((previousStatuses) => ({
-      ...previousStatuses,
-      [applicationId]: status,
-    }));
-  }
-
-  async function handleConfirm(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const apiBaseUrl = "/api/backend";
-
-    const updates = Object.entries(selectedStatuses).map(
-      ([applicationId, status]) => ({
-        application_id: Number(applicationId),
-        status,
-      })
-    );
-
-    if (updates.length === 0) {
-      setNoticeMessage("변경할 수강신청 상태를 선택해 주세요.");
-      return;
-    }
-
-    try {
-      const response = await sessionFetch(`${apiBaseUrl}/admin/applications/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({ updates }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail ?? "승인 상태를 변경하지 못했습니다.");
-      }
-
-      setNoticeMessage("수강신청 상태가 변경되었습니다.");
-
-      setApplications((previousApplications) =>
-        previousApplications.filter(
-          (application) =>
-            selectedStatuses[application.application_id] !== "승인완료"
-        )
-      );
-
-      setSelectedStatuses({});
-    } catch (error) {
-      setNoticeMessage(
-        error instanceof Error
-          ? error.message
-          : "서버에 연결할 수 없습니다."
-      );
-    }
-  }
 
   return (
     <main className="relative flex min-h-screen flex-col items-center bg-slate-100 px-4 py-12">
@@ -138,7 +73,7 @@ export default function AdminApplicationsPage() {
           <AcademyBrand />
         </Link>
         <p className="mt-2 text-sm font-medium text-slate-600 sm:text-base">
-          수강 신청 관리 및 상태 변경 시스템
+          수강 신청 및 승인 현황
         </p>
       </div>
 
@@ -148,7 +83,7 @@ export default function AdminApplicationsPage() {
           <p className="mb-6 text-center text-sm font-medium text-red-600">{noticeMessage}</p>
         )}
 
-        <form onSubmit={handleConfirm}>
+        <div>
           {applications.length > 0 && (
             <>
               <div className="w-full overflow-x-auto rounded-lg border border-slate-400">
@@ -204,22 +139,7 @@ export default function AdminApplicationsPage() {
                         </td>
 
                         <td className="whitespace-nowrap px-4 py-4 text-center align-middle">
-                          <select
-                            value={
-                              selectedStatuses[application.application_id] ??
-                              application.status
-                            }
-                            onChange={(event) =>
-                              handleStatusChange(
-                                application.application_id,
-                                event.target.value as "승인대기" | "승인완료"
-                              )
-                            }
-                            className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none"
-                          >
-                            <option value="승인대기">승인대기</option>
-                            <option value="승인완료">승인완료</option>
-                          </select>
+                          {application.status}
                         </td>
                       </tr>
                     ))}
@@ -279,40 +199,11 @@ export default function AdminApplicationsPage() {
             </p>
           )}
 
-          {!noticeMessage && applications.length === 0 && (
-            <p className="py-10 text-center text-sm text-slate-500">
-              현재 수강신청 내역이 없습니다.
-            </p>
-          )}
-
-          {applications.length > 0 && (
-            <div className="mt-10 flex w-full justify-end">
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/30 active:scale-[0.98] sm:w-auto"
-              >
-                <span>확정하기</span>
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2.5"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
 
           <p className="mt-8 text-center text-xs text-slate-400">
             제이 외국어 온라인 학원 학생 관리 시스템
           </p>
-        </form>
+        </div>
       </section>
 
 

@@ -41,7 +41,7 @@ async function handleApplication(
     }
 
     if (response.ok) {
-      setResultMessage("수강신청이 접수되었습니다. 관리자 승인 후 강의를 이용할 수 있습니다.");
+      setResultMessage("수강 신청이 접수되었습니다. 같은 외국어와 단계의 수강료 결제가 완료되면 강의를 이용할 수 있습니다.");
       setSelectedSubject("");
       setSelectedClass("");
     } else {
@@ -67,7 +67,7 @@ async function handleApplication(
             수강 신청
           </h1>
           <p className="mt-2 text-slate-600">
-            수강할 외국어와 반을 선택해 주세요.
+            수강할 외국어와 반을 선택해 주세요. 수강료 결제가 완료되면 자동으로 승인됩니다.
           </p>
 
           <form className="mt-8" onSubmit={handleApplication}>
@@ -149,6 +149,10 @@ async function handleApplication(
               수강 신청하기
             </button>
           </form>
+
+          <Link href="/payment" className="mt-4 inline-block text-sm font-semibold text-blue-700 underline">
+            수강료 결제로 이동
+          </Link>
 
           {resultMessage && (
             <div className="mt-6 rounded-lg bg-green-100 p-4 text-green-800">

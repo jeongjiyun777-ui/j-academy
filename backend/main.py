@@ -11,11 +11,11 @@ import jwt
 import requests
 import math
 from dotenv import load_dotenv
-from typing import Literal
 from fastapi import (
     BackgroundTasks,
     Depends,
     FastAPI,
+    Header,
     HTTPException,
     Request,
     Response,
@@ -37,6 +37,7 @@ from 발송시스템 import (
     send_subject_notification_email,
     send_inquiries_email,
 )
+from payment_email import send_payment_completed_email
 from 챗봇 import (
     make_answer, 
     is_exit_message,
@@ -303,13 +304,6 @@ class StudentRegister(BaseModel):
 class ApplicationCreate(BaseModel):
     subject: str
     class_name: str
-
-class ApplicationStatusUpdate(BaseModel):
-    application_id: int
-    status: Literal["승인대기", "승인완료"]
-
-class ApplicationStatusBatchUpdate(BaseModel):
-    updates: list[ApplicationStatusUpdate]
 
 class AdminStudentResponse(BaseModel):
     student_id: int
@@ -773,6 +767,42 @@ def logout(request: Request, response: Response):
     return {"message": "로그아웃되었습니다."}
 
 
+class PaymentCompletedEvent(BaseModel):
+    order_id: int = Field(gt=0)
+
+
+@app.post("/internal/payments/completed", status_code=status.HTTP_202_ACCEPTED)
+def notify_payment_completed(
+    event: PaymentCompletedEvent,
+    background_tasks: BackgroundTasks,
+    payment_event_secret: str = Header(default="", alias="X-Payment-Event-Secret"),
+):
+    expected = os.getenv("PAYMENT_NOTIFICATION_SECRET", "").strip()
+    if not expected:
+        raise HTTPException(status_code=503, detail="결제 알림 설정이 필요합니다.")
+    if not secrets.compare_digest(payment_event_secret.encode(), expected.encode()):
+        raise HTTPException(status_code=403, detail="허용되지 않은 요청입니다.")
+
+    with engine.connect() as connection:
+        order = connection.execute(
+            text("""
+                SELECT id, amount_krw FROM public.orders
+                WHERE id = :order_id AND status = '결제완료'
+            """),
+            {"order_id": event.order_id},
+        ).mappings().one_or_none()
+
+    if order is None:
+        raise HTTPException(status_code=404, detail="결제 완료 주문을 찾을 수 없습니다.")
+
+    background_tasks.add_task(
+        send_payment_completed_email,
+        order["id"],
+        order["amount_krw"],
+    )
+    return {"queued": True}
+
+
 @app.post("/applications")
 def apply_course(
     application: ApplicationCreate,
@@ -854,7 +884,7 @@ def apply_course(
                     class_name = :class_name,
                     status = '승인대기',
                     updated_at = CURRENT_TIMESTAMP
-                WHERE id = :application_id
+                WHERE id = :application_id AND status = '승인대기'
                 RETURNING
                     id,
                     student_id,
@@ -871,7 +901,12 @@ def apply_course(
                     "application_id": existing_application["id"],
                     "class_name": target_class,
                 },
-            ).mappings().one()
+            ).mappings().one_or_none()
+            if row is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="승인된 과목의 반 변경은 수강료 결제에서 진행해 주세요.",
+                )
     background_tasks.add_task(
         send_subject_notification_email,
         name=student["name"],
@@ -895,7 +930,6 @@ def get_admin_applications(
     count_query = text("""
         SELECT COUNT(*)
         FROM applications
-        WHERE status = '승인대기'
     """)
 
     query = text("""
@@ -909,8 +943,7 @@ def get_admin_applications(
         FROM applications AS a
         JOIN students AS s
             ON s.id = a.student_id
-        WHERE a.status = '승인대기'
-        ORDER BY a.updated_at DESC
+        ORDER BY a.updated_at DESC, a.id DESC
         LIMIT :limit
         OFFSET :offset
     """)
@@ -1126,51 +1159,6 @@ def export_admin_students(
         },
     )
 
-
-@app.patch("/admin/applications/status")
-def update_admin_application_status(
-    request: ApplicationStatusBatchUpdate,
-    manager_id: int = Depends(get_current_manager),
-):
-    if not request.updates:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="변경할 수강신청 상태가 없습니다.",
-        )
-
-    update_query = text("""
-        UPDATE applications
-        SET
-            status = :status,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = :application_id
-        RETURNING id, status
-    """)
-
-    with engine.begin() as connection:
-        updated_applications = []
-
-        for update in request.updates:
-            row = connection.execute(
-                update_query,
-                {
-                    "application_id": update.application_id,
-                    "status": update.status,
-                },
-            ).mappings().one_or_none()
-
-            if row is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"수강신청 번호 {update.application_id}을 찾을 수 없습니다.",
-                )
-
-            updated_applications.append(dict(row))
-
-    return {
-        "message": "수강신청 상태가 변경되었습니다.",
-        "applications": updated_applications,
-    }
 
 @app.get("/admin/students/search")
 def search_admin_students(

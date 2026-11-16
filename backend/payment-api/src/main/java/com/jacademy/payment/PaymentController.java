@@ -120,6 +120,7 @@ public class PaymentController {
     }
 
     @PostMapping("/checkout/orders")
+    @Transactional
     public ResponseEntity<PendingOrder> createOrder(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @CookieValue(value = "access_token", required = false) String token,
@@ -136,6 +137,9 @@ public class PaymentController {
         if (request.courseId() == null || request.courseId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A positive courseId is required");
         }
+
+        lockStudent(student.id());
+        rejectAlreadyPurchased(student.id(), request.courseId());
 
         var orders = jdbcTemplate.query("""
                 INSERT INTO public.orders (student_id, course_id, amount_krw)
@@ -184,12 +188,13 @@ public class PaymentController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid payment details");
         }
 
+        lockStudent(student.id());
         var order = jdbcTemplate.query("""
-                SELECT o.id, o.amount_krw, o.status, o.toss_payment_key, c.subject, c.level
+                SELECT o.id, o.course_id, o.amount_krw, o.status, o.toss_payment_key, c.subject, c.level
                 FROM public.orders AS o
                 JOIN public.courses AS c ON c.id = o.course_id
                 WHERE o.toss_order_id = ? AND o.student_id = ? FOR UPDATE OF o
-                """, (row, index) -> new ApprovalOrder(row.getLong("id"), row.getInt("amount_krw"),
+                """, (row, index) -> new ApprovalOrder(row.getLong("id"), row.getLong("course_id"), row.getInt("amount_krw"),
                         row.getString("status"), row.getString("toss_payment_key"),
                         row.getString("subject"), row.getString("level")),
                 request.orderId(), student.id()).stream().findFirst()
@@ -206,6 +211,7 @@ public class PaymentController {
             if (!"결제대기".equals(order.status())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is not pending");
             }
+            rejectAlreadyPurchased(student.id(), order.courseId());
             if (!tossSecret.startsWith("test_sk_")) {
                 throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Toss test key is required");
             }
@@ -238,6 +244,35 @@ public class PaymentController {
                 .body(new ConfirmedOrder(order.id(), order.amount(), "결제완료"));
     }
 
+    private void lockStudent(long studentId) {
+        var ids = jdbcTemplate.queryForList(
+                "SELECT id FROM public.students WHERE id = ? FOR NO KEY UPDATE", Long.class, studentId);
+        if (ids.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
+        }
+    }
+
+    private void rejectAlreadyPurchased(long studentId, long courseId) {
+        Boolean alreadyPurchased = jdbcTemplate.queryForObject("""
+                SELECT EXISTS (
+                    SELECT 1 FROM public.orders
+                    WHERE student_id = ? AND course_id = ? AND status = '결제완료'
+                ) OR EXISTS (
+                    SELECT 1 FROM public.applications AS a
+                    JOIN public.courses AS c ON c.subject = a.subject
+                    WHERE a.student_id = ? AND c.id = ? AND a.status = '승인완료'
+                      AND a.class_name = CASE c.level
+                          WHEN 'basic' THEN 'A반'
+                          WHEN 'intermediate' THEN 'B반'
+                          WHEN 'advanced' THEN 'C반'
+                      END
+                )
+                """, Boolean.class, studentId, courseId, studentId, courseId);
+        if (Boolean.TRUE.equals(alreadyPurchased)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Course already purchased");
+        }
+    }
+
     private TossPayment approveWithToss(ConfirmRequest request) {
         try {
             return tossApi.post().uri("/v1/payments/confirm")
@@ -258,7 +293,7 @@ public class PaymentController {
 
     public record ConfirmRequest(String paymentKey, String orderId, Integer amount) {}
     public record ConfirmedOrder(long orderId, int amountKrw, String status) {}
-    private record ApprovalOrder(long id, int amount, String status, String paymentKey, String subject, String level) {}
+    private record ApprovalOrder(long id, long courseId, int amount, String status, String paymentKey, String subject, String level) {}
     public record TossPayment(String paymentKey, String orderId, String status, String currency, Integer totalAmount) {}
 
     public record OrderRequest(Long courseId) {}

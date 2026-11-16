@@ -22,7 +22,15 @@ interface Order {
 const levelLabels: Record<string, string> = { basic: "기초", intermediate: "중급", advanced: "고급" };
 const won = new Intl.NumberFormat("ko-KR");
 
-export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => void; onBusyChange?: (busy: boolean) => void }) {
+export default function PaymentForm({
+  onDone,
+  onBusyChange,
+  onTossVisibilityChange,
+}: {
+  onDone?: () => void;
+  onBusyChange?: (busy: boolean) => void;
+  onTossVisibilityChange?: (opening: boolean) => void;
+}) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [subject, setSubject] = useState("");
   const [selectedId, setSelectedId] = useState<number>();
@@ -82,6 +90,10 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
         body: JSON.stringify({ courseId: selected.id }),
       });
       if (response.status === 401 || response.status === 403) throw new Error("학생 로그인 상태를 확인해 주세요.");
+      if (response.status === 409) {
+        window.alert("이미 결제한 과목입니다.");
+        return;
+      }
       if (response.status === 400) throw new Error("강좌 선택을 확인한 뒤 다시 신청해 주세요.");
       if (response.status === 404) throw new Error("학생 정보나 강좌를 찾을 수 없습니다.");
       if (response.status >= 500) {
@@ -107,7 +119,11 @@ export default function PaymentForm({ onDone, onBusyChange }: { onDone?: () => v
             <p>주문번호 {order.orderId}</p>
             <p className="text-2xl font-bold">{won.format(order.amountKrw)}원</p>
             <p className="text-sm">수강료 결제 요청이 접수되었습니다. 현재 결제 대기 상태입니다.</p>
-            <TossTestPayment orderId={order.tossOrderId} amount={order.amountKrw} />
+            <TossTestPayment
+              orderId={order.tossOrderId}
+              amount={order.amountKrw}
+              onVisibilityChange={onTossVisibilityChange}
+            />
             {onDone ? <button type="button" onClick={onDone} className="text-sm font-semibold text-blue-700 underline">닫기</button> : <Link href="/" className="text-sm font-semibold text-blue-700 underline">홈으로</Link>}
           </section>
         ) : (

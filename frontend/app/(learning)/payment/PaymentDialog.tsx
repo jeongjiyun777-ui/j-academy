@@ -39,7 +39,16 @@ export default function PaymentDialog({ onClose }: { onClose: () => void }) {
           <X aria-hidden="true" className="size-5" />
         </button>
       </div>
-      <PaymentForm onDone={onClose} onBusyChange={setBusy} />
+      <PaymentForm
+        onDone={onClose}
+        onBusyChange={setBusy}
+        onTossVisibilityChange={(opening) => {
+          const dialog = dialogRef.current;
+          if (!dialog) return;
+          if (opening) dialog.close();
+          else if (!dialog.open) dialog.showModal();
+        }}
+      />
     </dialog>
   );
 }

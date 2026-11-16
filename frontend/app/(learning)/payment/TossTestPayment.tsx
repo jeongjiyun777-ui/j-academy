@@ -16,7 +16,15 @@ type TossSdk = (clientKey: string) => {
   };
 };
 
-export default function TossTestPayment({ orderId, amount }: { orderId: string; amount: number }) {
+export default function TossTestPayment({
+  orderId,
+  amount,
+  onVisibilityChange,
+}: {
+  orderId: string;
+  amount: number;
+  onVisibilityChange?: (opening: boolean) => void;
+}) {
   const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY?.trim();
   const [ready, setReady] = useState(false);
   const [opening, setOpening] = useState(false);
@@ -39,6 +47,7 @@ export default function TossTestPayment({ orderId, amount }: { orderId: string; 
       const { origin, pathname, search, hash } = window.location;
       const callback = new URL("/payment", origin);
       callback.searchParams.set("returnTo", pathname + search + hash);
+      onVisibilityChange?.(true);
       await payment.requestPayment({
         method: "CARD",
         amount: { currency: "KRW", value: amount },
@@ -48,6 +57,7 @@ export default function TossTestPayment({ orderId, amount }: { orderId: string; 
         failUrl: new URL("?payment=failed", callback).toString(),
       });
     } catch {
+      onVisibilityChange?.(false);
       setError("결제창을 열지 못했거나 결제가 중단되었습니다. 다시 시도해 주세요.");
     } finally {
       inFlight.current = false;

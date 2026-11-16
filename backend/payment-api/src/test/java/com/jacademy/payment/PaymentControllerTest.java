@@ -32,6 +32,7 @@ class PaymentControllerTest {
 
     @BeforeEach
     void setup() {
+        when(db.queryForList(contains("FOR NO KEY UPDATE"), eq(Long.class), eq(7L))).thenReturn(List.of(7L));
         controller = new PaymentController("https://auth.test", db, events, "test_sk_fixture");
         var authClient = RestClient.builder().baseUrl("https://auth.test");
         var auth = MockRestServiceServer.bindTo(authClient).build();
@@ -97,6 +98,33 @@ class PaymentControllerTest {
         toss.verify();
     }
 
+    @Test
+    void purchasedCourseCannotCreateAnotherOrder() {
+        when(db.queryForObject(contains("a.class_name"), eq(Boolean.class),
+                eq(7L), eq(3L), eq(7L), eq(3L))).thenReturn(true);
+
+        var error = assertThrows(ResponseStatusException.class, () ->
+                controller.createOrder("Bearer fixture-token", null, null,
+                        new PaymentController.OrderRequest(3L)));
+
+        assertEquals(HttpStatus.CONFLICT, error.getStatusCode());
+        verifyNoInteractions(events);
+        toss.verify();
+    }
+
+    @Test
+    void oldPendingOrderCannotBeApprovedAfterAnotherOrderWasPaid() throws Exception {
+        stubOrder("결제대기", null);
+        when(db.queryForObject(contains("a.class_name"), eq(Boolean.class),
+                eq(7L), eq(3L), eq(7L), eq(3L))).thenReturn(true);
+
+        assertEquals(HttpStatus.CONFLICT,
+                assertThrows(ResponseStatusException.class, () -> confirm(150000)).getStatusCode());
+        verify(db, never()).update(anyString(), any(Object[].class));
+        verifyNoInteractions(events);
+        toss.verify();
+    }
+
     private PaymentController.ConfirmedOrder confirm(int amount) {
         return controller.confirmPayment("Bearer fixture-token", null, null,
                 new PaymentController.ConfirmRequest(KEY, ORDER, amount)).getBody();
@@ -117,6 +145,7 @@ class PaymentControllerTest {
     private void stubOrder(String status, String key) throws Exception {
         var row = mock(ResultSet.class);
         when(row.getLong("id")).thenReturn(12L);
+        when(row.getLong("course_id")).thenReturn(3L);
         when(row.getInt("amount_krw")).thenReturn(150000);
         when(row.getString("status")).thenReturn(status);
         when(row.getString("toss_payment_key")).thenReturn(key);

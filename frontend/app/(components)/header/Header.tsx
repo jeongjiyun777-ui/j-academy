@@ -317,22 +317,32 @@ export default function Header() {
                       <span className="shrink-0">{canAccessAdmin ? "관리자님" : "회원님"}</span>
                       <HeaderIcon name="chevron" small />
                     </summary>
-                    <div className="absolute right-0 top-full z-10 max-h-[65vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                    <div className="absolute right-0 top-full z-10 max-h-[65dvh] w-64 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
                       {canAccessLessons && (
                         <>
                           <Link href="/application" className={accountClass}>수강 신청</Link>
                           <p className="px-3 pt-2 text-xs font-semibold text-slate-500">내 강의</p>
                           {applications.length === 0 && <p className="px-3 py-2 text-sm text-slate-600">신청한 강의가 없습니다.</p>}
-                          {applications.map((application) => {
-                            const key = `${application.subject}-${application.class_name}`;
-                            if (application.status !== "승인완료") {
-                              return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{application.subject} {application.class_name} (대기중)</p>;
-                            }
-                            const lesson = lessonLinkBySubjectAndClass[
-                              application.subject as keyof typeof lessonLinkBySubjectAndClass
-                            ]?.[application.class_name as "A반" | "B반" | "C반"];
-                            return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label} ({application.class_name})</Link> : null;
-                          })}
+                          {[...new Set(applications.map((application) => application.subject))].map((subject) => (
+                            <details key={subject} className="rounded-lg border-b border-slate-100 last:border-0">
+                              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-blue-50 [&::-webkit-details-marker]:hidden">
+                                {subject}
+                                <HeaderIcon name="chevron" small />
+                              </summary>
+                              <div className="space-y-1 pb-2 pl-2">
+                                {applications.filter((application) => application.subject === subject).map((application) => {
+                                  const key = subject + "-" + application.class_name;
+                                  const lesson = lessonLinkBySubjectAndClass[
+                                    subject as keyof typeof lessonLinkBySubjectAndClass
+                                  ]?.[application.class_name as "A반" | "B반" | "C반"];
+                                  if (application.status !== "승인완료") {
+                                    return <p key={key} className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">{lesson?.label ?? application.class_name} · 수강 대기</p>;
+                                  }
+                                  return lesson ? <Link key={key} href={lesson.href} className={accountClass}>{lesson.label}</Link> : null;
+                                })}
+                              </div>
+                            </details>
+                          ))}
                         </>
                       )}
                     </div>

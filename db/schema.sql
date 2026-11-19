@@ -79,8 +79,8 @@ CREATE TABLE applications (
     updated_at TIMESTAMPTZ NOT NULL
     DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT unique_student_subject
-        UNIQUE (student_id, subject)
+    CONSTRAINT unique_student_subject_class
+        UNIQUE (student_id, subject, class_name)
 );
 
 

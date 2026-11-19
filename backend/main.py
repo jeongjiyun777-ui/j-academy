@@ -831,82 +831,20 @@ def apply_course(
             )
 
 
-        find_application_query = text("""
-            SELECT id, class_name
-            FROM applications
-            WHERE student_id = :student_id
-            AND subject = :subject
-        """)
-
-        existing_application = connection.execute(
-            find_application_query,
-            {
-                "student_id": student_id,
-                "subject": target_subject,
-            },
+        row = connection.execute(
+            text("""
+                INSERT INTO applications (student_id, subject, class_name)
+                VALUES (:student_id, :subject, :class_name)
+                ON CONFLICT (student_id, subject, class_name) DO NOTHING
+                RETURNING id, student_id, subject, class_name, status, created_at
+            """),
+            {"student_id": student_id, "subject": target_subject, "class_name": target_class},
         ).mappings().one_or_none()
-
-
-        if existing_application is None:
-            insert_query = text("""
-                INSERT INTO applications (
-                    student_id,
-                    subject,
-                    class_name
-                )
-                VALUES (
-                    :student_id,
-                    :subject,
-                    :class_name
-                )
-                RETURNING id, student_id, subject, class_name, created_at
-            """)
-
-            row = connection.execute(
-                insert_query,
-                {
-                    "student_id": student_id,
-                    "subject": target_subject,
-                    "class_name": target_class,
-                },
-            ).mappings().one()
-
-        elif existing_application["class_name"] == target_class:
+        if row is None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="이미 가입한 과목과 반입니다.",
+                detail="이미 신청한 과목과 반입니다.",
             )
-
-        else:
-            update_query = text("""
-                UPDATE applications
-                SET
-                    class_name = :class_name,
-                    status = '승인대기',
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = :application_id AND status = '승인대기'
-                RETURNING
-                    id,
-                    student_id,
-                    subject,
-                    class_name,
-                    status,
-                    created_at,
-                    updated_at
-            """)
-
-            row = connection.execute(
-                update_query,
-                {
-                    "application_id": existing_application["id"],
-                    "class_name": target_class,
-                },
-            ).mappings().one_or_none()
-            if row is None:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail="승인된 과목의 반 변경은 수강료 결제에서 진행해 주세요.",
-                )
     background_tasks.add_task(
         send_subject_notification_email,
         name=student["name"],

@@ -7,7 +7,7 @@ def db(api, monkeypatch):
     engine = create_engine("sqlite://")
     with engine.begin() as conn:
         conn.execute(text("CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT NOT NULL)"))
-        conn.execute(text("CREATE TABLE applications (id INTEGER PRIMARY KEY, student_id INTEGER NOT NULL, subject TEXT NOT NULL, class_name TEXT NOT NULL, status TEXT DEFAULT '승인대기', created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT)"))
+        conn.execute(text("CREATE TABLE applications (id INTEGER PRIMARY KEY, student_id INTEGER NOT NULL, subject TEXT NOT NULL, class_name TEXT NOT NULL, status TEXT DEFAULT '승인대기', created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT, UNIQUE(student_id, subject, class_name))"))
         conn.execute(text("INSERT INTO students VALUES (1, '테스트학생'), (2, '다른학생')"))
     monkeypatch.setattr(api, "engine", engine)
     yield engine
@@ -34,17 +34,19 @@ def test_duplicate_application_is_rejected(api, db):
     with db.connect() as conn:
         assert conn.execute(text('SELECT COUNT(*) FROM applications')).scalar_one() == 1
 
-def test_approved_class_change_requires_payment(api, db):
+def test_same_subject_different_classes_are_retained(api, db):
     api.apply_course(api.ApplicationCreate(subject='영어', class_name='A반'), BackgroundTasks(), 1)
     with db.begin() as conn:
         conn.execute(text("UPDATE applications SET status='승인완료'"))
-    tasks = BackgroundTasks()
-    with pytest.raises(HTTPException) as caught:
-        api.apply_course(api.ApplicationCreate(subject='영어', class_name='B반'), tasks, 1)
-    assert caught.value.status_code == 409
-    assert tasks.tasks == []
+    api.apply_course(api.ApplicationCreate(subject='영어', class_name='B반'), BackgroundTasks(), 1)
+    api.apply_course(api.ApplicationCreate(subject='일본어', class_name='A반'), BackgroundTasks(), 1)
     with db.connect() as conn:
-        assert tuple(conn.execute(text('SELECT class_name, status FROM applications')).one()) == ('A반', '승인완료')
+        rows = conn.execute(text('SELECT subject, class_name, status FROM applications ORDER BY id')).all()
+    assert [tuple(row) for row in rows] == [
+        ('영어', 'A반', '승인완료'),
+        ('영어', 'B반', '승인대기'),
+        ('일본어', 'A반', '승인대기'),
+    ]
 
 def test_missing_student_cannot_apply(api, db):
     with pytest.raises(HTTPException) as caught:

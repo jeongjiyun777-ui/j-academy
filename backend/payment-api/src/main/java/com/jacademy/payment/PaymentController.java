@@ -235,7 +235,7 @@ public class PaymentController {
             jdbcTemplate.update("""
                     INSERT INTO public.applications (student_id, subject, class_name, status)
                     VALUES (?, ?, ?, '승인완료')
-                    ON CONFLICT (student_id, subject) DO UPDATE
+                    ON CONFLICT (student_id, subject, class_name) DO UPDATE
                     SET class_name = EXCLUDED.class_name, status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP
                     """, student.id(), order.subject(), className);
             events.publishEvent(new PaymentNotification.Completed(order.id()));
